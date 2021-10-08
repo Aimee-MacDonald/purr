@@ -1,0 +1,49 @@
+{
+  "name": "purr",
+  "version": "0.0.1",
+  "description": "Digital gratitude",
+  "main": "src/backend/server.js",
+  "repository": "https://github.com/Aimee-MacDonald/purr.git",
+  "author": "Aimee MacDonald <aimeelmacdonald@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "start_server": "node src/backend/server.js",
+    "compile_frontend_continiously": "webpack --config webpack.config.js --watch"
+  },
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "mongoose": "^6.0.10",
+    "pug": "^3.0.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.15.8",
+    "@babel/preset-env": "^7.15.8",
+    "@babel/preset-react": "^7.14.5",
+    "@nomiclabs/hardhat-ethers": "^2.0.2",
+    "@nomiclabs/hardhat-waffle": "^2.0.1",
+    "@wojtekmaj/enzyme-adapter-react-17": "^0.6.3",
+    "autoprefixer": "^10.3.7",
+    "babel-loader": "^8.2.2",
+    "chai": "^4.3.4",
+    "core-js": "^3.18.2",
+    "css-loader": "^6.3.0",
+    "cssnano": "^5.0.8",
+    "enzyme": "^3.11.0",
+    "ethereum-waffle": "^3.4.0",
+    "ethers": "^5.4.7",
+    "hardhat": "^2.6.5",
+    "mini-css-extract-plugin": "^2.4.2",
+    "normalize.css": "^8.0.1",
+    "postcss": "^8.3.9",
+    "postcss-loader": "^6.1.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "regenerator-runtime": "^0.13.9",
+    "sass": "^1.42.1",
+    "sass-loader": "^12.1.0",
+    "webpack": "^5.58.1",
+    "webpack-cli": "^4.9.0"
+  }
+}
