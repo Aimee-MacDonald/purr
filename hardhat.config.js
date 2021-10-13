@@ -13,7 +13,8 @@ module.exports = {
   paths: {
     sources: './src/blockchain/contracts',
     cache: './src/blockchain/cache',
-    artifacts: './src/frontend/artifacts'
+    artifacts: './src/frontend/artifacts',
+    tests: './testing/src/blockchain'
   },
   networks: {
     hardhat: {

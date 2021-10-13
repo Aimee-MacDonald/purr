@@ -1,0 +1,3 @@
+{
+  "setupFilesAfterEnv": ["<rootDir>/testing/src/frontend/setupTests.js"]
+}

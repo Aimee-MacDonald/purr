@@ -4,9 +4,11 @@ import ReactDOM from 'react-dom'
 import 'normalize.css'
 import './main.sass'
 
+import PurrInteraction from './components/PurrInteraction'
+
 const Main = () => (
   <div id='Main'>
-    <h1>Purr purr</h1>
+    <PurrInteraction/>
   </div>
 )
 

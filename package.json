@@ -1,6 +1,6 @@
 {
   "name": "purr",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Digital gratitude",
   "main": "src/backend/server.js",
   "repository": "https://github.com/Aimee-MacDonald/purr.git",
@@ -11,7 +11,9 @@
     "compile_frontend_continiously": "webpack --config webpack.config.js --watch",
     "start_local_blockchain": "npx hardhat node",
     "compile_contracts": "npx hardhat compile",
-    "deploy_contracts": "npx hardhat run --network localhost src/blockchain/scripts/deployContracts.js"
+    "deploy_contracts": "npx hardhat run --network localhost src/blockchain/scripts/deployContracts.js",
+    "test_contracts": "npx hardhat test",
+    "test_frontend_continiously": "jest --config=jest.config.json --watch"
   },
   "dependencies": {
     "body-parser": "^1.19.0",
@@ -26,6 +28,7 @@
     "@babel/preset-react": "^7.14.5",
     "@nomiclabs/hardhat-ethers": "^2.0.2",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
+    "@openzeppelin/contracts": "^4.3.2",
     "@wojtekmaj/enzyme-adapter-react-17": "^0.6.3",
     "autoprefixer": "^10.3.7",
     "babel-loader": "^8.2.2",
@@ -37,6 +40,7 @@
     "ethereum-waffle": "^3.4.0",
     "ethers": "^5.4.7",
     "hardhat": "^2.6.5",
+    "jest": "^27.2.5",
     "mini-css-extract-plugin": "^2.4.2",
     "normalize.css": "^8.0.1",
     "postcss": "^8.3.9",
