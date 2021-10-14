@@ -53,37 +53,5 @@ describe("PurrCoin", () => {
       expect(await token.balanceOf(owner.address)).to.equal('40000000000000000000')
       expect(await token.balanceOf(addr1.address)).to.equal('40000000000000000000')
     })
-
-
-
-    // First check if alowance available
-    // If transfer amount < alowance
-      // Subtract the allowance from transfer amount
-      // Mint transfer amount to reciever
-
-    // If transfer > alowance
-      // if transfer amount < allowance + balance
-        // reduce allowance to zero
-        // Mint allowance to reciever
-        // Transfer the remaining Transfer amount from balance
-
-      // If transfer amount > allowance + balance
-        // Revert
-
-
-    /* it('Should transfer tokens between accounts', async () => {
-      await token.transfer(addr1.address, 50);
-      const addr1Balance = await token.balanceOf(addr1.address);
-      expect(await token.balanceOf(addr1.address)).to.equal('50');
-
-      await token.connect(addr1).transfer(addr2.address, 25);
-      const addr2Balance = await token.balanceOf(addr2.address);
-      expect(await token.balanceOf(addr2.address)).to.equal('25');
-    });
-
-    it(`Should fail if sender doesn't have enough tokens`, async () => {
-      await expect(token.connect(addr1).transfer(addr2.address, 50)).to.be.revertedWith('Not enough tokens');
-      expect(await token.balanceOf(addr2.address)).to.equal('0');
-    }); */
-  });
+  })
 })
