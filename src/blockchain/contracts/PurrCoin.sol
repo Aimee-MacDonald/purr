@@ -33,15 +33,13 @@ contract PurrCoin is ERC20 {
     return _mintAllowance[_msgSender()];
   }
 
-  function transfer(address to, uint value) public override returns (bool) {
-    uint mintValue = value > _mintAllowance[_msgSender()] ? _mintAllowance[_msgSender()] : value;
+  function _transfer(address from, address to, uint value) internal override {
+    uint mintValue = value > _mintAllowance[from] ? _mintAllowance[from] : value;
     uint transferValue = value - mintValue;
 
-    _mintAllowance[_msgSender()] -= mintValue;
+    _mintAllowance[from] -= mintValue;
 
     if(mintValue > 0) _mint(to, mintValue);
-    if(transferValue > 0) _transfer(_msgSender(), to, transferValue);
-
-    return true;
+    if(transferValue > 0) super._transfer(from, to, transferValue);
   }
 }
