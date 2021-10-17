@@ -9,6 +9,24 @@ describe("PurrCoin", () => {
     [owner, addr1, addr2, _] = await ethers.getSigners()
   })
 
+  describe('Balance checks', () => {
+    it('Should return the balance of a specified wallet', async () => {
+      expect(await token.balanceOf(owner.address)).to.equal('50000000000000000000')
+    })
+
+    it('Should return the mint allowance of a specified wallet', async () => {
+      expect(await token.mintAllowanceOf(owner.address)).to.equal('30000000000000000000')
+    })
+
+    it('Should return the balance of the caller', async () => {
+      expect(await token.balanceOfCaller()).to.equal('50000000000000000000')
+    })
+
+    it('Should return the mint allowance of the caller', async () => {
+      expect(await token.mintAllowanceOfCaller()).to.equal('30000000000000000000')
+    })
+  })
+
   describe('Transactions', () => {
     it('When transfer amount > allowance + balance, Should revert', async () => {
       const allowance = await token.mintAllowanceOf(owner.address)

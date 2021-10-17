@@ -1,16 +1,19 @@
 const hre = require('hardhat')
 
-async function deployPurrCoin() {
+async function main() {
   const PurrCoin = await hre.ethers.getContractFactory('PurrCoin')
+  const PurrNFT = await hre.ethers.getContractFactory('PurrNFT')
+
   const purrCoin = await PurrCoin.deploy()
+  const purrNFT = await PurrNFT.deploy()
 
   await purrCoin.deployed()
+  await purrNFT.deployed()
+
+  await purrNFT.setCoinContract(purrCoin.address)
 
   console.log(`PurrCoin deployed to: ${purrCoin.address}`)
-}
-
-async function main() {
-  await deployPurrCoin()
+  console.log(`PurrNFT deployed to: ${purrNFT.address}`)
 }
 
 main()
@@ -19,3 +22,4 @@ main()
     console.error(error);
     process.exit(1);
   });
+  

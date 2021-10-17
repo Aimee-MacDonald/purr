@@ -51,6 +51,10 @@ contract PurrNFT is ERC721, ERC721Enumerable {
     return true;
   }
 
+  function balanceOfCaller() public view returns (uint256) {
+    return balanceOf(_msgSender());
+  }
+
   function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal virtual override(ERC721, ERC721Enumerable) {
     super._beforeTokenTransfer(from, to, tokenId);
   }

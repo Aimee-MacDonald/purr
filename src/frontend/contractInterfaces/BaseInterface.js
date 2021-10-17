@@ -26,4 +26,11 @@ export default class BaseInterface {
       return contract
     }
   }
+
+  async getSignerAddress() {
+    await window.ethereum.request({ method: 'eth_requestAccounts' })
+    const provider = new ethers.providers.Web3Provider(window.ethereum)
+    const signer = provider.getSigner()
+    return signer.getAddress()
+  }
 }
