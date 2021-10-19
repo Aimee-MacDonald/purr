@@ -1,7 +1,7 @@
 import React from 'react'
 import { shallow } from 'enzyme'
 
-import { PurrInteraction } from '../../../../src/frontend/components/PurrInteraction'
+import { PurrInteraction } from '../../../src/frontend/components/PurrInteraction'
 
 test('Render PurrInteraction', () => {
   const wrapper = shallow(<PurrInteraction/>)

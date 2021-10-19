@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import PurrCoinInterface from '../contractInterfaces/PurrCoinInterface'
 import PurrNFTInterface from '../contractInterfaces/PurrNFTInterface'
 
-const PurrInteraction = () => {
+export const PurrInteraction = () => {
   const purrCoin = new PurrCoinInterface()
   const purrNFT = new PurrNFTInterface()
 
