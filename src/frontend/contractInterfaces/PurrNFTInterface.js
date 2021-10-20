@@ -1,5 +1,5 @@
 import PurrNFT from '../artifacts/src/blockchain/contracts/PurrNFT.sol/PurrNFT.json'
-const purrNFTAddress = '0x0165878A594ca255338adfa4d48449f69242Eb8F'
+const purrNFTAddress = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512'
 
 import BaseInterface from './BaseInterface'
 
@@ -13,7 +13,7 @@ export default class PurrNFTInterface extends BaseInterface {
       const contract = await super.getContract(true)
 
       try {
-        return await contract.balanceOfCaller()
+        return await contract.balanceOfCaller() * 1
       } catch(error) {
         return error
       }
@@ -44,7 +44,11 @@ export default class PurrNFTInterface extends BaseInterface {
         for(let i = 0; i < nftCount; i++) {
           const tokenID = await contract.tokenOfOwnerByIndex(signerAddress, i) * 1
           const mintData = await contract.getMintData(tokenID)
-          allMintData.push({_id:tokenID, ...mintData})
+          allMintData.push({
+            _id:tokenID,
+            ...mintData,
+            value: mintData.value / 10 ** 18
+          })
         }
 
         return allMintData
