@@ -1,6 +1,36 @@
 #Navigation
-  background-color: purple
-  width: 16rem
   height: 100vh
   display: flex
   flex-flow: nowrap column
+  align-items: center
+  transition: 0.4s
+  button
+    margin-top: 0.8rem
+
+.navigationOpen
+  background-color: #bf8bcc
+  width: 4rem
+
+.navigationClosed
+  background-color: transparent
+  width: 0
+  button
+    display: none
+  #toggleNav
+    display: block
+    margin: 0.8rem 3.2rem 0 0
+
+@media screen and (min-width: 900px)
+  #Navigation
+    order: -1
+    button
+      padding: 0.6rem 0.8rem
+
+  .navigationOpen
+    width: 6rem
+
+  .navigationClosed
+    width: 0
+    #toggleNav
+      display: block
+      margin: 0.8rem 0 0 4.2rem

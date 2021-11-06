@@ -44,22 +44,27 @@ const PurrsWorkspace = () => {
 
   return (
     <div id='PurrsWorkspace'>
-      <h1>{`Allowance: ${allowance}`}</h1>
-      <h1>{`Balance: ${balance}`}</h1>
+      <div id='balances'>
+        <h1>{`Allowance: ${allowance}`}</h1>
+        <h1>{`Balance: ${balance}`}</h1>
+      </div>
 
-      <form onSubmit={mintPurrNFT}>
+      <form id='nftMinting' onSubmit={mintPurrNFT}>
+        <label for='address'>Address</label>
         <input
           id='address'
           placeholder='address'
           required
         />
 
+        <label for='message'>Message</label>
         <input
           id='message'
           placeholder='message'
           required
         />
 
+        <label for='value'>Value</label>
         <input
           id='value'
           placeholder='value'
@@ -69,14 +74,16 @@ const PurrsWorkspace = () => {
         <button type='submit'>Send</button>
       </form>
 
-      {purrNFTs.map(nft => (
-        <div key={nft._id}>
-          <p>{`From: ${nft.from}`}</p>
-          <p>{`Value: ${nft.value}`}</p>
-          <p>{`Message: ${nft.message}`}</p>
-          {!nft.isRedeemed && <button onClick={() => redeemPurrNFT(nft._id)}>Redeem</button>}
-        </div>
-      ))}
+      {purrNFTs.length > 0 && <div id='nftList'>
+        {purrNFTs.map(nft => (
+          <div key={nft._id} className='nftCard'>
+            <p>{`From: ${nft.from}`}</p>
+            <p>{`Value: ${nft.value}`}</p>
+            <p>{`Message: ${nft.message}`}</p>
+            {!nft.isRedeemed && <button onClick={() => redeemPurrNFT(nft._id)}>Redeem</button>}
+          </div>
+        ))}
+      </div>}
     </div>
   )
 }

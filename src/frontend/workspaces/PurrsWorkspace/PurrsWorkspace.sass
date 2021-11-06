@@ -1,3 +1,34 @@
 #PurrsWorkspace
   width: 100%
   height: 100%
+  overflow-y: scroll
+  display: flex
+  flex-flow: wrap row
+  align-items: flex-start
+  justify-content: space-evenly
+  #balances
+    width: 100%
+  #nftMinting
+    display: flex
+    flex-flow: nowrap column
+    padding: 1.2rem
+    width: 100%
+    input
+      margin-bottom: 0.8rem
+  #nftList
+    width: 100%
+    .nftCard
+      background-color: lime
+      margin: 1.2rem
+
+  @media screen and (min-width: 900px)
+    #balances
+      display: flex
+      flex-flow: nowrap row
+      justify-content: space-evenly
+
+    #nftMinting
+      width: 32%
+
+    #nftList
+      width: 32%
