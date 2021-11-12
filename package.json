@@ -1,6 +1,6 @@
 {
   "name": "purr",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "description": "Digital gratitude",
   "main": "src/backend/server.js",
   "repository": "https://github.com/Aimee-MacDonald/purr.git",
@@ -16,6 +16,7 @@
     "test_frontend_continiously": "jest --config=jest.config.json --watch"
   },
   "dependencies": {
+    "@openzeppelin/contracts-upgradeable": "^4.3.2",
     "body-parser": "^1.19.0",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
