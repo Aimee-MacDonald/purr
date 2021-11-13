@@ -3,6 +3,7 @@ import React, { createContext, useState } from 'react'
 export default ({ children }) => {
   const [ activeWorkspace, setActiveWorkspace ] = useState(0)
   const workspaceOptions = [
+    'JOIN',
     'PURRS',
     'NETWORK'
   ]
