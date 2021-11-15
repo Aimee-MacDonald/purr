@@ -10,10 +10,13 @@ contract PurrerFactory is Ownable, ERC721 {
   using Counters for Counters.Counter;
   Counters.Counter private _tokenIdTracker;
   mapping(address => address) private userToPurrer;
-  address private purrerImplementationAddress;
 
-  constructor(address _purrerImplementationAddress) ERC721("Purrer", "PURR") {
+  address private purrerImplementationAddress;
+  address private purrCoinAddress;
+
+  constructor(address _purrerImplementationAddress, address _purrCoinAddress) ERC721("Purrer", "PURR") {
     purrerImplementationAddress = _purrerImplementationAddress;
+    purrCoinAddress = _purrCoinAddress;
   }
 
   function join() external {
@@ -21,6 +24,7 @@ contract PurrerFactory is Ownable, ERC721 {
     userToPurrer[_msgSender()] = cloneAddress;
     IPurrer(cloneAddress).init();
     IPurrer(cloneAddress).transferOwnership(_msgSender());
+    IPurrCoin(purrCoinAddress).addMinter(cloneAddress);
     _safeMint(_msgSender(), _tokenIdTracker.current());
     _tokenIdTracker.increment();
   }
@@ -30,7 +34,11 @@ contract PurrerFactory is Ownable, ERC721 {
   }
 }
 
-interface IPurrer{
+interface IPurrer {
   function init() external;
   function transferOwnership(address newOwner) external;
+}
+
+interface IPurrCoin {
+  function addMinter(address newMinter) external;
 }

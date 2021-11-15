@@ -7,8 +7,11 @@ describe('PurrerFactory', () => {
     const Purrer = await ethers.getContractFactory('Purrer')
     const purrer = await Purrer.deploy()
 
+    const PurrCoin = await ethers.getContractFactory('PurrCoin')
+    purrCoin = await PurrCoin.deploy()
+
     const PurrerFactory = await ethers.getContractFactory('PurrerFactory')
-    purrerFactory = await PurrerFactory.deploy(purrer.address)
+    purrerFactory = await PurrerFactory.deploy(purrer.address, purrCoin.address)
     signers = await ethers.getSigners()
   })
 

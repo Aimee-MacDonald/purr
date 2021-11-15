@@ -6,11 +6,9 @@ import "hardhat/console.sol";
 
 contract PurrCoin is ERC20 {
   mapping(address => uint) private _mintAllowance;
-  address[] private _minters;
 
   constructor() ERC20("Purr", "PURR") {
     _mint(_msgSender(), 50 * 10 ** decimals());
-    _minters.push(_msgSender());
     _mintAllowance[_msgSender()] = 30 * 10 ** decimals();
   }
 
@@ -18,10 +16,8 @@ contract PurrCoin is ERC20 {
     return balanceOf(_msgSender());
   }
 
-  function addMinter() public returns (bool) {
-    _minters.push(_msgSender());
-    _mintAllowance[_msgSender()] = 32 * 10 ** decimals();
-    _mint(_msgSender(), 16 * 10 ** decimals());
+  function addMinter(address newMinter) external returns (bool) {
+    _mintAllowance[newMinter] = 10 ** decimals();
     return true;
   }
 
