@@ -4,28 +4,39 @@ import './PurrsWorkspace.sass'
 
 import PurrNFTInterface from '../../contractInterfaces/PurrNFTInterface'
 import PurrCoinInterface from '../../contractInterfaces/PurrCoinInterface'
+import PurrerFactoryInterface from '../../contractInterfaces/PurrerFactoryInterface'
 
 const PurrsWorkspace = () => {
   const [ purrNFTs, setPurrNFTs ] = useState([])
   const [ allowance, setAllowance ] = useState(0)
   const [ balance, setBalance ] = useState(0)
+  const [ purrerAddress, setPurrerAddress ] = useState('')
 
   const purrNFT = new PurrNFTInterface()
   const purrCoin = new PurrCoinInterface()
+  const purrerFactory = new PurrerFactoryInterface()
 
   useEffect(() => {
-    purrNFT.getAllMintData()
-      .then(result => setPurrNFTs(result))
-      .catch(error => console.log(error))
-
-    purrCoin.balanceOfCaller()
-      .then(result => setBalance(result))
-      .catch(error => console.log(error))
-
-    purrCoin.mintAllowanceOfCaller()
-      .then(result => setAllowance(result))
+    purrerFactory.purrerAddress()
+      .then(result => setPurrerAddress(result))
       .catch(error => console.log(error))
   }, [])
+
+  useEffect(() => {
+    if(purrerAddress !== '') {
+      purrNFT.getAllMintData(purrerAddress)
+        .then(result => setPurrNFTs(result))
+        .catch(error => console.log(error))
+
+      purrCoin.balanceOf(purrerAddress)
+        .then(result => setBalance(result))
+        .catch(error => console.log(error))
+
+      purrCoin.mintAllowanceOf(purrerAddress)
+        .then(result => setAllowance(result))
+        .catch(error => console.log(error))
+    }
+  }, [purrerAddress])
 
   const mintPurrNFT = e => {
     e.preventDefault()
@@ -50,21 +61,21 @@ const PurrsWorkspace = () => {
       </div>
 
       <form id='nftMinting' onSubmit={mintPurrNFT}>
-        <label for='address'>Address</label>
+        <label htmlFor='address'>Address</label>
         <input
           id='address'
           placeholder='address'
           required
         />
 
-        <label for='message'>Message</label>
+        <label htmlFor='message'>Message</label>
         <input
           id='message'
           placeholder='message'
           required
         />
 
-        <label for='value'>Value</label>
+        <label htmlFor='value'>Value</label>
         <input
           id='value'
           placeholder='value'

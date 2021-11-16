@@ -32,17 +32,16 @@ export default class PurrNFTInterface extends BaseInterface {
     }
   }
 
-  async getAllMintData() {
+  async getAllMintData(purrerAddress) {
     if(super.ethCheck) {
       const contract = await super.getContract(true)
-      const signerAddress = await super.getSignerAddress()
 
       try {
-        const nftCount = await contract.balanceOf(signerAddress) * 1
+        const nftCount = await contract.balanceOf(purrerAddress) * 1
         let allMintData = []
 
         for(let i = 0; i < nftCount; i++) {
-          const tokenID = await contract.tokenOfOwnerByIndex(signerAddress, i) * 1
+          const tokenID = await contract.tokenOfOwnerByIndex(purrerAddress, i) * 1
           const mintData = await contract.getMintData(tokenID)
           allMintData.push({
             _id:tokenID,

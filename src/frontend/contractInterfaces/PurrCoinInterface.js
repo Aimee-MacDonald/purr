@@ -7,24 +7,24 @@ export default class PurrCoinInterface extends BaseInterface {
     super('0x5FbDB2315678afecb367f032d93F642f64180aa3', PurrCoin.abi)
   }
 
-  async balanceOfCaller() {
+  async balanceOf(purrerAddress) {
     if(super.ethCheck) {
       const contract = await super.getContract(true)
 
       try {
-        return await contract.balanceOfCaller() / 10 ** 18
+        return await contract.balanceOf(purrerAddress) / 10 ** 18
       } catch(error) {
         return error
       }
     }
   }
 
-  async mintAllowanceOfCaller() {
+  async mintAllowanceOf(purrerAddress) {
     if(super.ethCheck) {
       const contract = await super.getContract(true)
 
       try {
-        return await contract.mintAllowanceOfCaller() / 10 ** 18
+        return await contract.mintAllowanceOf(purrerAddress) / 10 ** 18
       } catch(error) {
         return error
       }

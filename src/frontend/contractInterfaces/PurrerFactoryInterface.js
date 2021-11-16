@@ -31,4 +31,16 @@ export default class PurrerFactoryInterface extends BaseInterface {
       }
     }
   }
+
+  async purrerAddress() {
+    if(super.ethCheck) {
+      const contract = await super.getContract(true)
+
+      try {
+        return contract.purrerAddress(super.getSignerAddress())
+      } catch(error) {
+        throw(error)
+      }
+    }
+  }
 } 

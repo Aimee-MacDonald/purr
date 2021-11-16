@@ -9,11 +9,12 @@ async function main() {
   const purrCoin = await PurrCoin.deploy()
   const purrNFT = await PurrNFT.deploy()
   const purrer = await Purrer.deploy()
-  const purrerFactory = await PurrerFactory.deploy(purrer.address)
-
+  
   await purrCoin.deployed()
   await purrNFT.deployed()
   await purrer.deployed()
+  
+  const purrerFactory = await PurrerFactory.deploy(purrer.address, purrCoin.address)
   await purrerFactory.deployed()
 
   await purrNFT.setCoinContract(purrCoin.address)
