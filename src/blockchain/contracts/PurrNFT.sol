@@ -4,7 +4,6 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "./PurrCoin.sol";
 
 contract PurrNFT is ERC721, ERC721Enumerable {
   using Counters for Counters.Counter;
@@ -20,16 +19,14 @@ contract PurrNFT is ERC721, ERC721Enumerable {
   }
 
   mapping(uint256 => MintData) private _mintData;
-  PurrCoin private _purrCoin;
+  address private _purrCoinAddress;
 
-  constructor() ERC721("Purr", "PURR") {}
-
-  function setCoinContract(address newCoinAddress) public {
-    _purrCoin = PurrCoin(newCoinAddress);
+  constructor(address purrCoinAddress) ERC721("Purr", "PURR") {
+    _purrCoinAddress = purrCoinAddress;
   }
 
   function mint(address to, string memory message, uint256 value) external returns (bool) {
-    bool transferSuccess = _purrCoin.transferFrom(_msgSender(), address(this), value);
+    bool transferSuccess = IERC20(_purrCoinAddress).transferFrom(_msgSender(), address(this), value);
     require(transferSuccess, "$PURR Transfer Failed");
 
     _mintData[_tokenIdTracker.current()] = MintData(_msgSender(), to, block.timestamp, message, value, false);
@@ -45,7 +42,7 @@ contract PurrNFT is ERC721, ERC721Enumerable {
   function redeem(uint256 tokenId) public returns (bool) {
     require(ownerOf(tokenId) == _msgSender(), "This Token does not Belong to you");
     require(!_mintData[tokenId].isRedeemed, "Tokens Already Redeemed");
-    bool transferSuccess = _purrCoin.transfer(_msgSender(), _mintData[tokenId].value);
+    bool transferSuccess = IERC20(_purrCoinAddress).transfer(_msgSender(), _mintData[tokenId].value);
     require(transferSuccess, "$PURR Transfer Failed");
     _mintData[tokenId].isRedeemed = true;
     return true;
@@ -62,4 +59,9 @@ contract PurrNFT is ERC721, ERC721Enumerable {
   function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, ERC721Enumerable) returns (bool) {
     return super.supportsInterface(interfaceId);
   }
+}
+
+interface IERC20 {
+  function transfer(address recipient, uint256 amount) external returns (bool);
+  function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
 }

@@ -1,7 +1,7 @@
 const { expect } = require('chai')
 
 describe('Purrer', () => {
-  let Purrer, purrer, clonedPurrer, purrerFactory, purrCoin, signers
+  let Purrer, purrer, clonedPurrer, purrerFactory, purrCoin, purrNFT, signers
 
   beforeEach(async () => {
     signers = await ethers.getSigners()
@@ -11,6 +11,9 @@ describe('Purrer', () => {
     
     const PurrCoin = await ethers.getContractFactory('PurrCoin')
     purrCoin = await PurrCoin.deploy()
+
+    const PurrNFT = await ethers.getContractFactory('PurrNFT')
+    purrNFT = await PurrNFT.deploy(purrCoin.address)
 
     const PurrerFactory = await ethers.getContractFactory('PurrerFactory')
     purrerFactory = await PurrerFactory.deploy(purrer.address, purrCoin.address)

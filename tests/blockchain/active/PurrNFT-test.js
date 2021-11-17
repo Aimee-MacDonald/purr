@@ -10,9 +10,7 @@ describe("PurrNFT", () => {
     purrCoin = await PurrCoin.deploy()
 
     PurrNFT = await ethers.getContractFactory('PurrNFT')
-    purrNFT = await PurrNFT.deploy()
-
-    await purrNFT.setCoinContract(purrCoin.address)
+    purrNFT = await PurrNFT.deploy(purrCoin.address)
   })
 
   describe('Minting', () => {
