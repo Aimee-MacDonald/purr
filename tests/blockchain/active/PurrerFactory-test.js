@@ -5,13 +5,16 @@ describe('PurrerFactory', () => {
 
   beforeEach(async () => {
     const Purrer = await ethers.getContractFactory('Purrer')
-    const purrer = await Purrer.deploy()
-
     const PurrCoin = await ethers.getContractFactory('PurrCoin')
-    purrCoin = await PurrCoin.deploy()
-
+    const PurrNFT = await ethers.getContractFactory('PurrNFT')
     const PurrerFactory = await ethers.getContractFactory('PurrerFactory')
-    purrerFactory = await PurrerFactory.deploy(purrer.address, purrCoin.address)
+    
+    const purrer = await Purrer.deploy()
+    const purrCoin = await PurrCoin.deploy()
+    const purrNFT = await PurrNFT.deploy(purrCoin.address)
+    
+    purrerFactory = await PurrerFactory.deploy(purrer.address, purrCoin.address, purrNFT.address)
+
     signers = await ethers.getSigners()
   })
 

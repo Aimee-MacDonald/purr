@@ -13,16 +13,18 @@ contract PurrerFactory is Ownable, ERC721 {
 
   address private purrerImplementationAddress;
   address private purrCoinAddress;
+  address private purrNFTAddress;
 
-  constructor(address _purrerImplementationAddress, address _purrCoinAddress) ERC721("Purrer", "PURR") {
+  constructor(address _purrerImplementationAddress, address _purrCoinAddress, address _purrNFTAddress) ERC721("Purrer", "PURR") {
     purrerImplementationAddress = _purrerImplementationAddress;
     purrCoinAddress = _purrCoinAddress;
+    purrNFTAddress = _purrNFTAddress;
   }
 
   function join() external {
     address cloneAddress = Clones.clone(purrerImplementationAddress);
     userToPurrer[_msgSender()] = cloneAddress;
-    IPurrer(cloneAddress).init();
+    IPurrer(cloneAddress).init(purrCoinAddress, purrNFTAddress);
     IPurrer(cloneAddress).transferOwnership(_msgSender());
     IPurrCoin(purrCoinAddress).addMinter(cloneAddress);
     _safeMint(_msgSender(), _tokenIdTracker.current());
@@ -35,7 +37,7 @@ contract PurrerFactory is Ownable, ERC721 {
 }
 
 interface IPurrer {
-  function init() external;
+  function init(address purrCoinAddress, address purrNFTAddress) external;
   function transferOwnership(address newOwner) external;
 }
 
