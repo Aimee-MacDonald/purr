@@ -39,7 +39,7 @@ contract PurrNFT is ERC721, ERC721Enumerable {
     return _mintData[tokenId];
   }
 
-  function redeem(uint256 tokenId) public returns (bool) {
+  function redeem(uint256 tokenId) external returns (bool) {
     require(ownerOf(tokenId) == _msgSender(), "This Token does not Belong to you");
     require(!_mintData[tokenId].isRedeemed, "Tokens Already Redeemed");
     bool transferSuccess = IERC20(_purrCoinAddress).transfer(_msgSender(), _mintData[tokenId].value);

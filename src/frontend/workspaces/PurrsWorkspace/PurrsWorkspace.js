@@ -5,6 +5,7 @@ import './PurrsWorkspace.sass'
 import PurrNFTInterface from '../../contractInterfaces/PurrNFTInterface'
 import PurrCoinInterface from '../../contractInterfaces/PurrCoinInterface'
 import PurrerFactoryInterface from '../../contractInterfaces/PurrerFactoryInterface'
+import PurrerInterface from '../../contractInterfaces/PurrerInterface'
 
 const PurrsWorkspace = () => {
   const [ purrNFTs, setPurrNFTs ] = useState([])
@@ -42,24 +43,30 @@ const PurrsWorkspace = () => {
     e.preventDefault()
 
     const nftValue = `${e.target.value.value}000000000000000000`
+    const purrer = new PurrerInterface(purrerAddress)
 
-    purrCoin.approve(purrNFT.address(), nftValue)
-      .then(result => purrNFT.mint(e.target.address.value, e.target.message.value, nftValue))
+    purrer.purr(e.target.address.value, e.target.message.value, nftValue)
+      .then(result => console.log(result))
+      .catch(error => console.log(error))
   }
 
   const redeemPurrNFT = tokenID => {
-    purrNFT.redeem(tokenID)
+    const purrer = new PurrerInterface(purrerAddress)
+
+    purrer.redeemPurr(tokenID)
       .then(result => console.log(result))
       .catch(error => console.log(error))
   }
 
   return (
     <div id='PurrsWorkspace'>
+      <p>{purrerAddress}</p>
+      
       <div id='balances'>
         <h1>{`Allowance: ${allowance}`}</h1>
         <h1>{`Balance: ${balance}`}</h1>
       </div>
-
+      
       <form id='nftMinting' onSubmit={mintPurrNFT}>
         <label htmlFor='address'>Address</label>
         <input

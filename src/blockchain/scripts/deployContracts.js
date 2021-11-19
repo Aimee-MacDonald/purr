@@ -7,17 +7,16 @@ async function main() {
   const PurrerFactory = await hre.ethers.getContractFactory('PurrerFactory')
 
   const purrCoin = await PurrCoin.deploy()
-  const purrNFT = await PurrNFT.deploy()
+  await purrCoin.deployed()
+
+  const purrNFT = await PurrNFT.deploy(purrCoin.address)
   const purrer = await Purrer.deploy()
   
-  await purrCoin.deployed()
   await purrNFT.deployed()
   await purrer.deployed()
   
-  const purrerFactory = await PurrerFactory.deploy(purrer.address, purrCoin.address)
+  const purrerFactory = await PurrerFactory.deploy(purrer.address, purrCoin.address, purrNFT.address)
   await purrerFactory.deployed()
-
-  await purrNFT.setCoinContract(purrCoin.address)
 
   console.log(`PurrCoin deployed to: ${purrCoin.address}`)
   console.log(`PurrNFT deployed to: ${purrNFT.address}`)

@@ -19,10 +19,15 @@ contract Purrer is OwnableUpgradeable, ERC721HolderUpgradeable {
     IPurrNFT(_purrNFTAddress).mint(to, message, value);
     return true;
   }
+
+  function redeemPurr(uint256 tokenId) external onlyOwner returns (bool) {
+    return IPurrNFT(_purrNFTAddress).redeem(tokenId);
+  }
 }
 
 interface IPurrNFT {
   function mint(address to, string memory message, uint256 value) external;
+  function redeem(uint256 tokenId) external returns (bool);
 }
 
 interface IPurrCoin {
