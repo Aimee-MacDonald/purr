@@ -1,5 +1,5 @@
 import PurrNFT from '../artifacts/src/blockchain/contracts/PurrNFT.sol/PurrNFT.json'
-const purrNFTAddress = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512'
+const purrNFTAddress = '0x6Ce347C9D5f189FbC5cE26ac8664Eaf497390bc2'
 
 import BaseInterface from './BaseInterface'
 

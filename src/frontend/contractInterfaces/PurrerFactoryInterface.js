@@ -4,7 +4,7 @@ import BaseInterface from './BaseInterface'
 
 export default class PurrerFactoryInterface extends BaseInterface {
   constructor() {
-    super('0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9', PurrerFactory.abi)
+    super('0x349F89Ee1097A6AAEcF026e5f9D2eAbD51611860', PurrerFactory.abi)
   }
 
   async isPurrer() {
