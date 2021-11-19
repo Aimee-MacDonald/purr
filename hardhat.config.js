@@ -1,7 +1,8 @@
 require("@nomiclabs/hardhat-waffle");
+require('dotenv').config()
 
 const INFURA_URL = 'https://ropsten.infura.io/v3/f3a1a5f7ab254f30b3665488d7a83cb2';
-const PRIVATE_KEY = '';
+const PRIVATE_KEY = process.env.PRIVATE_KEY;
 
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
   const accounts = await hre.ethers.getSigners();

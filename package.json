@@ -1,6 +1,6 @@
 {
   "name": "purr",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Digital gratitude",
   "main": "src/backend/server.js",
   "repository": "https://github.com/Aimee-MacDonald/purr.git",
@@ -14,7 +14,7 @@
     "deploy_contracts": "npx hardhat run --network localhost src/blockchain/scripts/deployContracts.js",
     "test_contracts": "npx hardhat test",
     "test_frontend_continiously": "jest --config=jest.config.json --watch",
-    "heroku-postbuild": "webpack --config webpack.config.js"
+    "heroku-postbuild": "npx hardhat compile && webpack --config webpack.config.js"
   },
   "dependencies": {
     "@openzeppelin/contracts-upgradeable": "^4.3.2",
