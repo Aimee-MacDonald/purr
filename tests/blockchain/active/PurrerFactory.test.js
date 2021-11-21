@@ -5,7 +5,7 @@ describe('PurrerFactory', () => {
 
   beforeEach(async () => {
     const Purrer = await ethers.getContractFactory('Purrer')
-    const PurrCoin = await ethers.getContractFactory('PurrCoin')
+    const PurrCoin = await ethers.getContractFactory('TIPurrCoin')
     const PurrNFT = await ethers.getContractFactory('PurrNFT')
     const PurrerFactory = await ethers.getContractFactory('PurrerFactory')
     

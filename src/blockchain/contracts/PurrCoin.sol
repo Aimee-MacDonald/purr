@@ -5,16 +5,9 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "hardhat/console.sol";
 
 contract PurrCoin is ERC20 {
-  mapping(address => uint) private _mintAllowance;
+  mapping(address => uint) internal _mintAllowance;
 
-  constructor() ERC20("Purr", "PURR") {
-    _mint(_msgSender(), 50 * 10 ** decimals());
-    _mintAllowance[_msgSender()] = 30 * 10 ** decimals();
-  }
-
-  function balanceOfCaller() public view returns (uint) {
-    return balanceOf(_msgSender());
-  }
+  constructor() ERC20("Purr", "PURR") {}
 
   function addMinter(address newMinter) external returns (bool) {
     _mintAllowance[newMinter] = 10 ** decimals();
@@ -23,10 +16,6 @@ contract PurrCoin is ERC20 {
 
   function mintAllowanceOf(address account) public view returns (uint) {
     return _mintAllowance[account];
-  }
-
-  function mintAllowanceOfCaller() public view returns (uint) {
-    return _mintAllowance[_msgSender()];
   }
 
   function _transfer(address from, address to, uint value) internal override {
