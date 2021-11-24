@@ -4,7 +4,7 @@ import BaseInterface from './BaseInterface'
 
 export default class PurrCoinInterface extends BaseInterface {
   constructor() {
-    super('0x91bF920DcA7107BA9aF63508c0f272D0b68E6A6A', PurrCoin.abi)
+    super('0x5FbDB2315678afecb367f032d93F642f64180aa3', PurrCoin.abi)
   }
 
   async balanceOf(purrerAddress) {

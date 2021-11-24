@@ -2,120 +2,141 @@ const { expect } = require("chai")
 
 describe("PurrNFT", () => {
   let signers, purrNFT, purrCoin
+  let clonedPurrer, clonedPurrerAddress, clonedPurrer2, clonedPurrerAddress2
 
   beforeEach(async () => {
     signers = await ethers.getSigners()
 
     const PurrCoin = await ethers.getContractFactory('TIPurrCoin')
-    purrCoin = await PurrCoin.deploy()
-
     const PurrNFT = await ethers.getContractFactory('PurrNFT')
+    const Purrer = await ethers.getContractFactory('Purrer')
+    const PurrerFactory = await ethers.getContractFactory('PurrerFactory')
+    
+    purrCoin = await PurrCoin.deploy()
     purrNFT = await PurrNFT.deploy(purrCoin.address)
+    const purrer = await Purrer.deploy()
+    const purrerFactory = await PurrerFactory.deploy(purrer.address, purrCoin.address, purrNFT.address)
+
+    await purrerFactory.join()
+    await purrerFactory.connect(signers[1]).join()
+    
+    clonedPurrerAddress = await purrerFactory.purrerAddress(signers[0].address)
+    clonedPurrerAddress2 = await purrerFactory.purrerAddress(signers[1].address)
+
+    clonedPurrer = await Purrer.attach(clonedPurrerAddress)
+    clonedPurrer2 = await Purrer.attach(clonedPurrerAddress2)
   })
 
   describe('Minting', () => {
-    it('When minting, Should send a new unique NFT to reciever', async () => {
-      expect(await purrNFT.balanceOf(signers[1].address)).to.equal(0)
-      expect(await purrNFT.balanceOf(signers[2].address)).to.equal(0)
+    it('Can be minted by a purrer', async () => {
+      let senderAllowance = await purrCoin.mintAllowanceOf(clonedPurrerAddress)
+      let recieverBalance = await purrNFT.balanceOf(clonedPurrerAddress2)
+
+      expect(senderAllowance).to.equal('1000000000000000000')
+      expect(recieverBalance).to.equal(0)
+
+      await clonedPurrer.purr(clonedPurrerAddress2, 'Message', '1000000000000000000')
+
+      senderAllowance = await purrCoin.mintAllowanceOf(clonedPurrerAddress)
+      recieverBalance = await purrNFT.balanceOf(clonedPurrerAddress2)
+
+      expect(senderAllowance).to.equal(0)
+      expect(recieverBalance).to.equal(1)
+    })
+
+    it('Can not be minted by a non Purrer', async () => {
+      let senderAllowance = await purrCoin.mintAllowanceOf(signers[0].address)
+      let recieverBalance = await purrNFT.balanceOf(clonedPurrerAddress)
+
+      expect(senderAllowance).to.equal('30000000000000000000')
+      expect(recieverBalance).to.equal(0)
 
       await purrCoin.approve(purrNFT.address, '10000000000000000000')
-      await purrNFT.mint(signers[1].address, "Prrrr", '10000000000000000000')
+      expect(purrNFT.mint(clonedPurrerAddress, "Message", '10000000000000000000')).to.be.revertedWith('PurrNFT: Only Purrers')
 
-      await purrCoin.approve(purrNFT.address, '10000000000000000000')
-      await purrNFT.mint(signers[2].address, "Prrrr", '10000000000000000000')
+      senderAllowance = await purrCoin.mintAllowanceOf(signers[0].address)
+      recieverBalance = await purrNFT.balanceOf(clonedPurrerAddress)
 
-      expect(await purrNFT.balanceOf(signers[1].address)).to.equal(1)
-      expect(await purrNFT.balanceOf(signers[2].address)).to.equal(1)
+      expect(senderAllowance).to.equal('30000000000000000000')
+      expect(recieverBalance).to.equal(0)
+    })
+
+    it('Can not be minted to a non Purrer', async () => {
+      let senderAllowance = await purrCoin.mintAllowanceOf(clonedPurrerAddress)
+      let recieverBalance = await purrNFT.balanceOf(signers[0].address)
+
+      expect(senderAllowance).to.equal('1000000000000000000')
+      expect(recieverBalance).to.equal(0)
+
+      expect(clonedPurrer.purr(signers[0].address, 'Message', '1000000000000000000')).to.be.revertedWith('PurrNFT: Only Purrers')
+
+      senderAllowance = await purrCoin.mintAllowanceOf(clonedPurrerAddress)
+      recieverBalance = await purrNFT.balanceOf(signers[0].address)
+
+      expect(senderAllowance).to.equal('1000000000000000000')
+      expect(recieverBalance).to.equal(0)
     })
 
     it('When minted, Should store metadata about the transaction', async () => {
-      const message = 'Prrrr'
-      const value = '10000000000000000000'
+      const message = 'Message'
+      const value = '1000000000000000000'
 
-      await purrCoin.approve(purrNFT.address, '10000000000000000000')
-      await purrNFT.mint(signers[1].address, message, value)
+      const senderAllowance = await purrCoin.mintAllowanceOf(clonedPurrerAddress)
+      const recieverBalance = await purrNFT.balanceOf(clonedPurrerAddress2)
+
+      expect(senderAllowance).to.equal('1000000000000000000')
+      expect(recieverBalance).to.equal(0)
+
+      await clonedPurrer.purr(clonedPurrerAddress2, message, value)
 
       const mintData = await purrNFT.getMintData(0)
 
-      expect(mintData.from).to.equal(signers[0].address)
-      expect(mintData.to).to.equal(signers[1].address)
+      expect(mintData.from).to.equal(clonedPurrerAddress)
+      expect(mintData.to).to.equal(clonedPurrerAddress2)
       expect(mintData.timeStamp.toString()).to.not.equal('')
-      expect(mintData.message).to.equal("Prrrr")
+      expect(mintData.message).to.equal(message)
       expect(mintData.value).to.equal(value)
     })
 
     it('When minting, Should wrap $PURR', async () => {
-      const allowance = await purrCoin.mintAllowanceOf(signers[0].address)
-      expect(allowance).to.equal('30000000000000000000')
+      const senderAllowance = await purrCoin.mintAllowanceOf(clonedPurrerAddress)
+      const recieverBalance = await purrNFT.balanceOf(clonedPurrerAddress2)
 
-      purrCoin.approve(purrNFT.address, '10000000000000000000')
+      expect(senderAllowance).to.equal('1000000000000000000')
+      expect(recieverBalance).to.equal(0)
 
-      const message = 'Prrrr'
-      const value = '10000000000000000000'
-      await purrNFT.mint(signers[1].address, message, value)
+      const value = '1000000000000000000'
+      await clonedPurrer.purr(clonedPurrerAddress2, 'Message', value)
 
-      expect(await purrNFT.balanceOf(signers[1].address)).to.equal(1)
-      expect(await purrCoin.mintAllowanceOf(signers[0].address)).to.equal('20000000000000000000')
+      expect(await purrNFT.balanceOf(clonedPurrerAddress2)).to.equal(1)
+      expect(await purrCoin.mintAllowanceOf(clonedPurrerAddress)).to.equal(0)
       expect(await purrCoin.balanceOf(purrNFT.address)).to.equal(value)
-      expect(await purrCoin.balanceOf(signers[0].address)).to.equal('50000000000000000000')
     })
   })
 
   describe('Redemption', () => {
-    it('When not the signers[0], Should revert', async () => {
-      const message = 'Prrrr'
-      const value = '10000000000000000000'
+    it('Wrapped tokens can be redeemed by owner', async () => {
+      expect(await purrCoin.mintAllowanceOf(clonedPurrerAddress)).to.equal('1000000000000000000')
+      expect(await purrCoin.balanceOf(purrNFT.address)).to.equal(0)
 
-      await purrCoin.approve(purrNFT.address, value)
-      await purrNFT.mint(signers[1].address, message, value)
+      const value = '1000000000000000000'
+      await clonedPurrer.purr(clonedPurrerAddress2, 'Message', value)
 
-      expect(await purrNFT.balanceOf(signers[1].address)).to.equal(1)
-      expect(await purrCoin.balanceOf(signers[0].address)).to.equal('50000000000000000000')
+      expect(await purrNFT.balanceOf(clonedPurrerAddress2)).to.equal(1)
+      expect(await purrCoin.balanceOf(purrNFT.address)).to.equal(value)
 
-      let mintData = await purrNFT.getMintData(0)
-      expect(mintData.value).to.equal(value)
-      expect(mintData.isRedeemed).to.equal(false)
+      expect(clonedPurrer.redeemPurr(0)).to.be.revertedWith('PurrNFT: This Token does not Belong to you')
+      expect(await purrCoin.balanceOf(purrNFT.address)).to.equal(value)
+      expect(await purrCoin.balanceOf(clonedPurrerAddress)).to.equal(0)
+      expect(await purrCoin.balanceOf(clonedPurrerAddress2)).to.equal(0)
 
-      expect(purrNFT.redeem(0)).to.be.revertedWith('This Token does not Belong to you')
-    })
+      await clonedPurrer2.connect(signers[1]).redeemPurr(0)
+      expect(await purrCoin.balanceOf(purrNFT.address)).to.equal(0)
+      expect(await purrCoin.balanceOf(clonedPurrerAddress2)).to.equal(value)
 
-    it('When redeemed, Should fund the signers[0]s wallet', async () => {
-      const message = 'Prrrr'
-      const value = '10000000000000000000'
-
-      await purrCoin.approve(purrNFT.address, value)
-      await purrNFT.mint(signers[1].address, message, value)
-
-      expect(await purrNFT.balanceOf(signers[1].address)).to.equal(1)
-      expect(await purrCoin.balanceOf(signers[1].address)).to.equal('0')
-
-      let mintData = await purrNFT.getMintData(0)
-      expect(mintData.value).to.equal(value)
-      expect(mintData.isRedeemed).to.equal(false)
-
-      await purrNFT.connect(signers[1]).redeem(0)
-
-      expect(await purrCoin.balanceOf(signers[1].address)).to.equal('10000000000000000000')
-      mintData = await purrNFT.getMintData(0)
-      expect(mintData.isRedeemed).to.equal(true)
-    })
-
-    it('When already redeemed, Should revert', async () => {
-      const message = 'Prrrr'
-      const value = '10000000000000000000'
-
-      await purrCoin.approve(purrNFT.address, value)
-      await purrNFT.mint(signers[1].address, message, value)
-
-      expect(await purrNFT.balanceOf(signers[1].address)).to.equal(1)
-      expect(await purrCoin.balanceOf(signers[1].address)).to.equal('0')
-
-      let mintData = await purrNFT.getMintData(0)
-      expect(mintData.value).to.equal(value)
-      expect(mintData.isRedeemed).to.equal(false)
-
-      await purrNFT.connect(signers[1]).redeem(0)
-      expect(purrNFT.connect(signers[1]).redeem(0)).to.be.revertedWith('Tokens Already Redeemed')
+      expect(clonedPurrer2.connect(signers[1]).redeemPurr(0)).to.be.revertedWith('PurrNFT: Tokens Already Redeemed')
+      expect(await purrCoin.balanceOf(purrNFT.address)).to.equal(0)
+      expect(await purrCoin.balanceOf(clonedPurrerAddress2)).to.equal(value)
     })
   })
 })

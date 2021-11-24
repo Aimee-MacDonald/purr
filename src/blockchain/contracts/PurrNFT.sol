@@ -19,15 +19,39 @@ contract PurrNFT is ERC721, ERC721Enumerable {
   }
 
   mapping(uint256 => MintData) private _mintData;
+  mapping(address => bool) private _isMinter;
   address private _purrCoinAddress;
+  address private _purrerFactoryAddress;
 
   constructor(address purrCoinAddress) ERC721("Purr", "PURR") {
     _purrCoinAddress = purrCoinAddress;
   }
 
-  function mint(address to, string memory message, uint256 value) external returns (bool) {
+  modifier onlyPurrer {
+    require(_isMinter[_msgSender()], "PurrNFT: Only Purrers");
+    _;
+  }
+
+  modifier onlyFactory {
+    require(_msgSender() == _purrerFactoryAddress, "PurrCoin: No Access");
+    _;
+  }
+
+  // Should only be called once by the owner
+  function setPurrerFactoryAddress(address factory) external returns (bool) {
+    _purrerFactoryAddress = factory;
+    return true;
+  }
+
+  function addMinter(address minter) external onlyFactory returns (bool) {
+    _isMinter[minter] = true;
+    return true;
+  }
+
+  function mint(address to, string memory message, uint256 value) external onlyPurrer returns (bool) {
+    require(_isMinter[to], "PurrNFT: Only Purrers");
     bool transferSuccess = IERC20(_purrCoinAddress).transferFrom(_msgSender(), address(this), value);
-    require(transferSuccess, "$PURR Transfer Failed");
+    require(transferSuccess, "PurrNFT: $PURR Transfer Failed");
 
     _mintData[_tokenIdTracker.current()] = MintData(_msgSender(), to, block.timestamp, message, value, false);
     _safeMint(to, _tokenIdTracker.current());
@@ -40,10 +64,10 @@ contract PurrNFT is ERC721, ERC721Enumerable {
   }
 
   function redeem(uint256 tokenId) external returns (bool) {
-    require(ownerOf(tokenId) == _msgSender(), "This Token does not Belong to you");
-    require(!_mintData[tokenId].isRedeemed, "Tokens Already Redeemed");
+    require(ownerOf(tokenId) == _msgSender(), "PurrNFT: This Token does not Belong to you");
+    require(!_mintData[tokenId].isRedeemed, "PurrNFT: Tokens Already Redeemed");
     bool transferSuccess = IERC20(_purrCoinAddress).transfer(_msgSender(), _mintData[tokenId].value);
-    require(transferSuccess, "$PURR Transfer Failed");
+    require(transferSuccess, "PurrNFT: $PURR Transfer Failed");
     _mintData[tokenId].isRedeemed = true;
     return true;
   }

@@ -2,15 +2,32 @@
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "hardhat/console.sol";
 
 contract PurrCoin is ERC20 {
   mapping(address => uint) internal _mintAllowance;
+  mapping(address => bool) private _recievers;
+  address private _purrerFactoryAddress;
 
   constructor() ERC20("Purr", "PURR") {}
 
-  function addMinter(address newMinter) external returns (bool) {
-    _mintAllowance[newMinter] = 10 ** decimals();
+  modifier onlyFactory {
+    require(_msgSender() == _purrerFactoryAddress, "PurrCoin: No Access");
+    _;
+  }
+
+  function addMinter(address minter) external onlyFactory returns (bool) {
+    _mintAllowance[minter] = 10 ** decimals();
+    return true;
+  }
+
+  function addReciever(address reciever) external onlyFactory returns (bool) {
+    _recievers[reciever] = true;
+    return true;
+  }
+
+  // Should only be called once by the owner
+  function setPurrerFactoryAddress(address factory) external returns (bool) {
+    _purrerFactoryAddress = factory;
     return true;
   }
 
@@ -19,6 +36,8 @@ contract PurrCoin is ERC20 {
   }
 
   function _transfer(address from, address to, uint value) internal override {
+    require(_recievers[to], "purrCoin: This address cannot recieve PURR");
+
     uint mintValue = value > _mintAllowance[from] ? _mintAllowance[from] : value;
     uint transferValue = value - mintValue;
 

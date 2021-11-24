@@ -1,7 +1,7 @@
 const { expect } = require('chai')
 
 describe('Purrer', () => {
-  let signers, purrCoin, purrNFT, clonedPurrerAddress, clonedPurrerAddress2, clonedPurrer, clonedPurrer2
+  let signers, purrCoin, purrNFT, purrerFactory, clonedPurrerAddress, clonedPurrerAddress2, clonedPurrer, clonedPurrer2
 
   beforeEach(async () => {
     signers = await ethers.getSigners()
@@ -14,7 +14,7 @@ describe('Purrer', () => {
     const purrer = await Purrer.deploy()
     purrCoin = await PurrCoin.deploy()
     purrNFT = await PurrNFT.deploy(purrCoin.address)
-    const purrerFactory = await PurrerFactory.deploy(purrer.address, purrCoin.address, purrNFT.address)
+    purrerFactory = await PurrerFactory.deploy(purrer.address, purrCoin.address, purrNFT.address)
 
     await purrerFactory.join()
     await purrerFactory.connect(signers[1]).join()
@@ -41,6 +41,10 @@ describe('Purrer', () => {
 
     it('Should have a PURR minting allowance of 1', async () => {
       expect(await purrCoin.mintAllowanceOf(clonedPurrer.address)).to.equal('1000000000000000000')
+    })
+
+    it('Any wallet can only hold one purrer at a time', () => {
+      expect(purrerFactory.join()).to.be.revertedWith('Purrer: Only one Purrer per wallet')
     })
   })
 
