@@ -1,7 +1,7 @@
 require("@nomiclabs/hardhat-waffle");
 require('dotenv').config()
 
-const INFURA_URL = 'https://ropsten.infura.io/v3/f3a1a5f7ab254f30b3665488d7a83cb2';
+const INFURA_URL = 'https://rinkeby.infura.io/v3/f3a1a5f7ab254f30b3665488d7a83cb2'
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
@@ -24,7 +24,7 @@ module.exports = {
     hardhat: {
       chainId: 1337
     },
-    ropsten: {
+    rinkeby: {
       url: INFURA_URL,
       accounts: [`0x${PRIVATE_KEY}`]
     }

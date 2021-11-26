@@ -4,7 +4,7 @@ import BaseInterface from './BaseInterface'
 
 export default class PurrNFTInterface extends BaseInterface {
   constructor() {
-    super('0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512', PurrNFT.abi)
+    super('0x203f6654DF9ba9DEDBD47d78AcF10ABfD8D15DfE', PurrNFT.abi)
   }
 
   async balanceOfCaller() {

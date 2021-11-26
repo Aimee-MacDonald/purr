@@ -2,11 +2,11 @@
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/proxy/Clones.sol";
 
-contract PurrerFactory is Ownable, ERC721 {
+contract PurrerFactory is Ownable, ERC721URIStorage {
   using Counters for Counters.Counter;
   Counters.Counter private _tokenIdTracker;
   mapping(address => address) private userToPurrer;
@@ -34,6 +34,7 @@ contract PurrerFactory is Ownable, ERC721 {
     IPurrCoin(purrCoinAddress).addReciever(cloneAddress);
     IPurrNFT(purrNFTAddress).addMinter(cloneAddress);
     _safeMint(_msgSender(), _tokenIdTracker.current());
+    _setTokenURI(_tokenIdTracker.current(), "https://whispurr.herokuapp.com/purrerData");
     _tokenIdTracker.increment();
   }
 
