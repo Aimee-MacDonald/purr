@@ -98,6 +98,21 @@ describe("PurrNFT", () => {
       expect(mintData.value).to.equal(value)
     })
 
+    it('Should return a URI for external metadata', async () => {
+      const message = 'Message'
+      const value = '1000000000000000000'
+
+      const senderAllowance = await purrCoin.mintAllowanceOf(clonedPurrerAddress)
+      const recieverBalance = await purrNFT.balanceOf(clonedPurrerAddress2)
+
+      expect(senderAllowance).to.equal('1000000000000000000')
+      expect(recieverBalance).to.equal(0)
+
+      await clonedPurrer.purr(clonedPurrerAddress2, message, value)
+
+      expect(await purrNFT.tokenURI(0)).to.equal('https://whispurr.herokuapp.com/purrNFTData')
+    })
+
     it('When minting, Should wrap $PURR', async () => {
       const senderAllowance = await purrCoin.mintAllowanceOf(clonedPurrerAddress)
       const recieverBalance = await purrNFT.balanceOf(clonedPurrerAddress2)

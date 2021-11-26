@@ -48,4 +48,12 @@ describe('PurrerFactory', () => {
       expect(addr0).to.not.equal(addr1)
     })
   })
+
+  it('Should return a URI for the metadata', async () => {
+    expect(await purrerFactory.balanceOf(signers[0].address)).to.equal(0)
+    await purrerFactory.join()
+    expect(await purrerFactory.balanceOf(signers[0].address)).to.equal(1)
+
+    expect(await purrerFactory.tokenURI(0)).to.equal('https://whispurr.herokuapp.com/purrerData')
+  })
 })

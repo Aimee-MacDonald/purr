@@ -5,6 +5,7 @@ const path = require('path')
 const mongoose = require("mongoose")
 
 const Purrer = require(path.join(__dirname, '../backend/dbmodels/Purrer.js'))
+const PurrNFT = require(path.join(__dirname, '../backend/dbmodels/PurrNFT.js'))
 
 mongoose.connect(process.env.DBURL, {useNewUrlParser: true, useUnifiedTopology: true})
 
@@ -19,6 +20,16 @@ app.get('/', (req, res) => {
 
 app.get('/purrerData', (req, res) => {
   Purrer.findOne((error, result) => {
+    if(error) {
+      console.log(error)
+    } else {
+      res.status(200).json(result)
+    }
+  })
+})
+
+app.get('/purrNFTData', (req, res) => {
+  PurrNFT.findOne((error, result) => {
     if(error) {
       console.log(error)
     } else {

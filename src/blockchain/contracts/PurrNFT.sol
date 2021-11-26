@@ -1,11 +1,10 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-contract PurrNFT is ERC721, ERC721Enumerable {
+contract PurrNFT is ERC721Enumerable {
   using Counters for Counters.Counter;
   Counters.Counter private _tokenIdTracker;
 
@@ -20,6 +19,7 @@ contract PurrNFT is ERC721, ERC721Enumerable {
 
   mapping(uint256 => MintData) private _mintData;
   mapping(address => bool) private _isMinter;
+  mapping(uint256 => string) private _tokenURIs;
   address private _purrCoinAddress;
   address private _purrerFactoryAddress;
 
@@ -55,12 +55,33 @@ contract PurrNFT is ERC721, ERC721Enumerable {
 
     _mintData[_tokenIdTracker.current()] = MintData(_msgSender(), to, block.timestamp, message, value, false);
     _safeMint(to, _tokenIdTracker.current());
+    _setTokenURI(_tokenIdTracker.current(), "https://whispurr.herokuapp.com/purrNFTData");
     _tokenIdTracker.increment();
     return true;
   }
   
   function getMintData(uint256 tokenId) public view returns (MintData memory) {
     return _mintData[tokenId];
+  }
+
+  function tokenURI(uint256 tokenId) public view override returns (string memory) {
+    require(_exists(tokenId), "ERC721URIStorage: URI query for nonexistent token");
+    string memory _tokenURI = _tokenURIs[tokenId];
+    string memory base = _baseURI();
+    // If there is no base URI, return the token URI.
+    if (bytes(base).length == 0) {
+        return _tokenURI;
+    }
+    // If both are set, concatenate the baseURI and tokenURI (via abi.encodePacked).
+    if (bytes(_tokenURI).length > 0) {
+        return string(abi.encodePacked(base, _tokenURI));
+    }
+    return super.tokenURI(tokenId);
+  }
+
+  function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal virtual {
+    require(_exists(tokenId), "ERC721URIStorage: URI set of nonexistent token");
+    _tokenURIs[tokenId] = _tokenURI;
   }
 
   function redeem(uint256 tokenId) external returns (bool) {
@@ -72,15 +93,11 @@ contract PurrNFT is ERC721, ERC721Enumerable {
     return true;
   }
 
-  function balanceOfCaller() public view returns (uint256) {
-    return balanceOf(_msgSender());
-  }
-
-  function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal virtual override(ERC721, ERC721Enumerable) {
+  function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal virtual override(ERC721Enumerable) {
     super._beforeTokenTransfer(from, to, tokenId);
   }
 
-  function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, ERC721Enumerable) returns (bool) {
+  function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721Enumerable) returns (bool) {
     return super.supportsInterface(interfaceId);
   }
 }
