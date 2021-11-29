@@ -4,7 +4,7 @@ import BaseInterface from './BaseInterface'
 
 export default class PurrerFactoryInterface extends BaseInterface {
   constructor() {
-    super('0xC2cAb0BCD151c10Aab1c9a5E124fd75A63e14582', PurrerFactory.abi)
+    super('0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9', PurrerFactory.abi)
   }
 
   async isPurrer() {
@@ -23,12 +23,7 @@ export default class PurrerFactoryInterface extends BaseInterface {
   async join() {
     if(super.ethCheck) {
       const contract = await super.getContract(true)
-
-      try {
-        contract.join()
-      } catch(error) {
-        throw(error)
-      }
+      return contract.join()
     }
   }
 

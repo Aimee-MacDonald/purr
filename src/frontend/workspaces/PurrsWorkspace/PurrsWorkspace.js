@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 
 import './PurrsWorkspace.sass'
 
@@ -7,11 +7,14 @@ import PurrCoinInterface from '../../contractInterfaces/PurrCoinInterface'
 import PurrerFactoryInterface from '../../contractInterfaces/PurrerFactoryInterface'
 import PurrerInterface from '../../contractInterfaces/PurrerInterface'
 
+import { ModalContext } from '../../contexts/Modal'
+
 const PurrsWorkspace = () => {
   const [ purrNFTs, setPurrNFTs ] = useState([])
   const [ allowance, setAllowance ] = useState(0)
   const [ balance, setBalance ] = useState(0)
   const [ purrerAddress, setPurrerAddress ] = useState('')
+  const { setNotification } = useContext(ModalContext)
 
   const purrNFT = new PurrNFTInterface()
   const purrCoin = new PurrCoinInterface()
@@ -24,6 +27,10 @@ const PurrsWorkspace = () => {
   }, [])
 
   useEffect(() => {
+    checkBalances()
+  }, [purrerAddress])
+
+  const checkBalances = () => {
     if(purrerAddress !== '') {
       purrNFT.getAllMintData(purrerAddress)
         .then(result => setPurrNFTs(result))
@@ -37,7 +44,7 @@ const PurrsWorkspace = () => {
         .then(result => setAllowance(result))
         .catch(error => console.log(error))
     }
-  }, [purrerAddress])
+  }
 
   const mintPurrNFT = e => {
     e.preventDefault()
@@ -46,16 +53,35 @@ const PurrsWorkspace = () => {
     const purrer = new PurrerInterface(purrerAddress)
 
     purrer.purr(e.target.address.value, e.target.message.value, nftValue)
-      .then(result => console.log(result))
-      .catch(error => console.log(error))
+      .then(result => {
+        setNotification('Minting Purr MicroNFT')
+        result.wait()
+          .then(res => {
+            e.target.address.value = ''
+            e.target.message.value = ''
+            e.target.value.value = ''
+            setNotification('MicroNFT Minted')
+            checkBalances()
+          })
+          .catch(error => setNotification('Something bad happened'))
+      })
+      .catch(error => setNotification('Something bad happened'))
   }
 
   const redeemPurrNFT = tokenID => {
     const purrer = new PurrerInterface(purrerAddress)
 
     purrer.redeemPurr(tokenID)
-      .then(result => console.log(result))
-      .catch(error => console.log(error))
+      .then(result => {
+        setNotification('Redeeming PURR')
+        result.wait()
+        .then(() => {
+          setNotification('Purr Redeemed')
+          checkBalances()
+        })
+        .catch(error => setNotification('Something bad happened'))
+      })
+      .catch(error => setNotification('Something bad happened'))
   }
 
   return (
