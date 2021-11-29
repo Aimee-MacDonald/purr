@@ -5,16 +5,21 @@ import 'normalize.css'
 import './main.sass'
 
 import NavigationProvider from './contexts/Navigation'
+import ModalProvider from './contexts/Modal'
 
 import WorkspaceLayer from './layers/WorkspaceLayer/WorkspaceLayer'
 import NavigationLayer from './layers/NavigationLayer/NavigationLayer'
+import ModalLayer from './layers/ModalLayer/ModalLayer'
 
 const Main = () => (
   <div id='Main'>
-    <NavigationProvider>
-      <WorkspaceLayer/>
-      <NavigationLayer/>
-    </NavigationProvider>
+    <ModalProvider>
+      <NavigationProvider>
+        <WorkspaceLayer/>
+        <NavigationLayer/>
+        <ModalLayer/>
+      </NavigationProvider>
+    </ModalProvider>
   </div>
 )
 
