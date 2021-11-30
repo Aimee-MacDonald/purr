@@ -9,7 +9,8 @@ import "@openzeppelin/contracts/proxy/Clones.sol";
 contract PurrerFactory is Ownable, ERC721URIStorage {
   using Counters for Counters.Counter;
   Counters.Counter private _tokenIdTracker;
-  mapping(address => address) private userToPurrer;
+  mapping(address => address) private _userToPurrerAddress;
+  mapping(address => uint256) private _userToPurrerId;
 
   address private purrerImplementationAddress;
   address private purrCoinAddress;
@@ -25,21 +26,32 @@ contract PurrerFactory is Ownable, ERC721URIStorage {
   }
 
   function join() external {
-    require(userToPurrer[_msgSender()] == address(0), "Purrer: Only one Purrer per wallet");
+    require(_userToPurrerAddress[_msgSender()] == address(0), "Purrer: Only one Purrer per wallet");
+
     address cloneAddress = Clones.clone(purrerImplementationAddress);
-    userToPurrer[_msgSender()] = cloneAddress;
+
+    _userToPurrerAddress[_msgSender()] = cloneAddress;
+    _userToPurrerId[_msgSender()] = _tokenIdTracker.current();
+
     IPurrer(cloneAddress).init(purrCoinAddress, purrNFTAddress);
     IPurrer(cloneAddress).transferOwnership(_msgSender());
+
     IPurrCoin(purrCoinAddress).addMinter(cloneAddress);
     IPurrCoin(purrCoinAddress).addReciever(cloneAddress);
+
     IPurrNFT(purrNFTAddress).addMinter(cloneAddress);
+    
     _safeMint(_msgSender(), _tokenIdTracker.current());
     _setTokenURI(_tokenIdTracker.current(), "https://whispurr.herokuapp.com/purrerData");
     _tokenIdTracker.increment();
   }
 
   function purrerAddress(address account) public view returns (address) {
-    return userToPurrer[account];
+    return _userToPurrerAddress[account];
+  }
+
+  function purrerId(address account) public view returns (uint256) {
+    return _userToPurrerId[account];
   }
 }
 

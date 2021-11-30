@@ -14,6 +14,7 @@ const PurrsWorkspace = () => {
   const [ allowance, setAllowance ] = useState(0)
   const [ balance, setBalance ] = useState(0)
   const [ purrerAddress, setPurrerAddress ] = useState('')
+  const [ purrerImage, setPurrerImage ] = useState('')
   const { setNotification } = useContext(ModalContext)
 
   const purrNFT = new PurrNFTInterface()
@@ -27,11 +28,15 @@ const PurrsWorkspace = () => {
   }, [])
 
   useEffect(() => {
-    checkBalances()
+    refreshPurrer()
   }, [purrerAddress])
 
-  const checkBalances = () => {
+  const refreshPurrer = () => {
     if(purrerAddress !== '') {
+      purrerFactory.getImageLink(purrerAddress)
+        .then(result => setPurrerImage(result))
+        .catch(error => setNotification("Error: Couldn't find the purrer image"))
+
       purrNFT.getAllMintData(purrerAddress)
         .then(result => setPurrNFTs(result))
         .catch(error => console.log(error))
@@ -77,7 +82,7 @@ const PurrsWorkspace = () => {
         result.wait()
         .then(() => {
           setNotification('Purr Redeemed')
-          checkBalances()
+          refreshPurrer()
         })
         .catch(error => setNotification('Something bad happened'))
       })
@@ -86,7 +91,10 @@ const PurrsWorkspace = () => {
 
   return (
     <div id='PurrsWorkspace'>
-      <p>{purrerAddress}</p>
+      <div id='Purrer'>
+        <img src={purrerImage}/>
+        <p>{purrerAddress}</p>
+      </div>
       
       <div id='balances'>
         <h1>{`Allowance: ${allowance}`}</h1>
@@ -121,6 +129,7 @@ const PurrsWorkspace = () => {
       {purrNFTs.length > 0 && <div id='nftList'>
         {purrNFTs.map(nft => (
           <div key={nft._id} className='nftCard'>
+            <img src={nft.tokenURI}/>
             <p>{`From: ${nft.from}`}</p>
             <p>{`Value: ${nft.value}`}</p>
             <p>{`Message: ${nft.message}`}</p>

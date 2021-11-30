@@ -38,4 +38,16 @@ export default class PurrerFactoryInterface extends BaseInterface {
       }
     }
   }
-} 
+
+  async getImageLink(purrerAddress) {
+    if(super.ethCheck) {
+      return super.getContract(true)
+        .then(contract => ({ contract: contract, purrerId: contract.purrerId(super.getSignerAddress()) }))
+        .then(({contract, purrerId}) => contract.tokenURI(purrerId))
+        .then(tokenURI => fetch(tokenURI))
+        .then(res => res.json())
+        .then(result => result.external_url)
+        .catch(error => {throw(error)})
+    }
+  }
+}

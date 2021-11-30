@@ -42,10 +42,15 @@ export default class PurrNFTInterface extends BaseInterface {
         for(let i = 0; i < nftCount; i++) {
           const tokenID = await contract.tokenOfOwnerByIndex(purrerAddress, i) * 1
           const mintData = await contract.getMintData(tokenID)
+          const tokenURI = await contract.tokenURI(tokenID)
+          const res = await fetch(tokenURI)
+          const result = await res.json()
+
           allMintData.push({
             _id:tokenID,
             ...mintData,
-            value: mintData.value / 10 ** 18
+            value: mintData.value / 10 ** 18,
+            tokenURI: result.external_url
           })
         }
 
@@ -54,8 +59,6 @@ export default class PurrNFTInterface extends BaseInterface {
         return error
       }
     }
-
-    return []
   }
 
   async redeem(tokenID) {
