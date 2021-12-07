@@ -46,4 +46,10 @@ contract PurrCoin is ERC20 {
     if(mintValue > 0) _mint(to, mintValue);
     if(transferValue > 0) super._transfer(from, to, transferValue);
   }
+
+  // Should Only be called by Purrer
+  function consumeLoot(address purrerAddress, address lootAddress) external returns (bool) {
+    lootAddress.delegatecall(abi.encodeWithSignature("consume(address)", purrerAddress));
+    return true;
+  }
 }

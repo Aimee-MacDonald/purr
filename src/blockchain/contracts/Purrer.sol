@@ -23,6 +23,11 @@ contract Purrer is OwnableUpgradeable, ERC721HolderUpgradeable {
   function redeemPurr(uint256 tokenId) external onlyOwner returns (bool) {
     return IPurrNFT(_purrNFTAddress).redeem(tokenId);
   }
+
+  function consumeLoot(address lootAddress) external returns (bool) {
+    IPurrCoin(_purrCoinAddress).consumeLoot(address(this), lootAddress);
+    return true;
+  }
 }
 
 interface IPurrNFT {
@@ -32,4 +37,5 @@ interface IPurrNFT {
 
 interface IPurrCoin {
   function approve(address spender, uint256 amount) external returns (bool);
+  function consumeLoot(address purrerAddress, address lootAddress) external returns (bool);
 }
