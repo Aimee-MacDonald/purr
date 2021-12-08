@@ -1,7 +1,7 @@
 const { expect } = require('chai')
 
 describe('Purrer', () => {
-  let signers, purrCoin, purrNFT, purrerFactory, clonedPurrerAddress, clonedPurrerAddress2, clonedPurrer, clonedPurrer2
+  let signers, purrCoin, purrNFT, purrerFactory, clonedPurrerAddress, clonedPurrerAddress2, clonedPurrer, clonedPurrer2, loot
 
   beforeEach(async () => {
     signers = await ethers.getSigners()
@@ -10,11 +10,13 @@ describe('Purrer', () => {
     const PurrCoin = await ethers.getContractFactory('TIPurrCoin')
     const PurrNFT = await ethers.getContractFactory('PurrNFT')
     const PurrerFactory = await ethers.getContractFactory('PurrerFactory')
+    const Loot = await ethers.getContractFactory('PCLResetBalances')
     
     const purrer = await Purrer.deploy()
     purrCoin = await PurrCoin.deploy()
     purrNFT = await PurrNFT.deploy(purrCoin.address)
-    purrerFactory = await PurrerFactory.deploy(purrer.address, purrCoin.address, purrNFT.address)
+    loot = await Loot.deploy()
+    purrerFactory = await PurrerFactory.deploy(purrer.address, purrCoin.address, purrNFT.address, loot.address)
 
     await purrerFactory.join()
     await purrerFactory.connect(signers[1]).join()
@@ -28,7 +30,7 @@ describe('Purrer', () => {
 
   describe('Initialization', () => {
     it('Should already be initialized', async () => {
-      expect(clonedPurrer.init(purrCoin.address, purrNFT.address)).to.be.revertedWith('Initializable: contract is already initialized')
+      expect(clonedPurrer.init(purrCoin.address, purrNFT.address, loot.address)).to.be.revertedWith('Initializable: contract is already initialized')
     })
 
     it('Should be owned by the user', async () => {

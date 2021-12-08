@@ -11,15 +11,18 @@ contract PurrerFactory is Ownable, ERC721URIStorage {
   Counters.Counter private _tokenIdTracker;
   mapping(address => address) private _userToPurrerAddress;
   mapping(address => uint256) private _userToPurrerId;
+  mapping(address => bool) private _isPurrer;
 
   address private purrerImplementationAddress;
   address private purrCoinAddress;
   address private purrNFTAddress;
+  address private lootFactoryAddress;
 
-  constructor(address _purrerImplementationAddress, address _purrCoinAddress, address _purrNFTAddress) ERC721("Purrer", "PURR") {
+  constructor(address _purrerImplementationAddress, address _purrCoinAddress, address _purrNFTAddress, address _lootFactoryAddress) ERC721("Purrer", "PURR") {
     purrerImplementationAddress = _purrerImplementationAddress;
     purrCoinAddress = _purrCoinAddress;
     purrNFTAddress = _purrNFTAddress;
+    lootFactoryAddress = _lootFactoryAddress;
     IPurrCoin(_purrCoinAddress).setPurrerFactoryAddress(address(this));
     IPurrNFT(_purrNFTAddress).setPurrerFactoryAddress(address(this));
     IPurrCoin(_purrCoinAddress).addReciever(purrNFTAddress);
@@ -32,8 +35,9 @@ contract PurrerFactory is Ownable, ERC721URIStorage {
 
     _userToPurrerAddress[_msgSender()] = cloneAddress;
     _userToPurrerId[_msgSender()] = _tokenIdTracker.current();
+    _isPurrer[cloneAddress] = true;
 
-    IPurrer(cloneAddress).init(purrCoinAddress, purrNFTAddress);
+    IPurrer(cloneAddress).init(purrCoinAddress, purrNFTAddress, lootFactoryAddress);
     IPurrer(cloneAddress).transferOwnership(_msgSender());
 
     IPurrCoin(purrCoinAddress).addMinter(cloneAddress);
@@ -53,10 +57,19 @@ contract PurrerFactory is Ownable, ERC721URIStorage {
   function purrerId(address account) public view returns (uint256) {
     return _userToPurrerId[account];
   }
+
+  function isPurrer(address account) external view returns (bool) {
+    return _isPurrer[account];
+  }
+
+  function mintLoot(address to) external returns (bool) {
+    ILootFactory(lootFactoryAddress).mint(to);
+    return true;
+  }
 }
 
 interface IPurrer {
-  function init(address purrCoinAddress, address purrNFTAddress) external;
+  function init(address purrCoinAddress, address purrNFTAddress, address lootFactoryAddress) external;
   function transferOwnership(address newOwner) external;
 }
 
@@ -69,4 +82,8 @@ interface IPurrCoin {
 interface IPurrNFT {
   function addMinter(address purrer) external;
   function setPurrerFactoryAddress(address factory) external;
+}
+
+interface ILootFactory {
+  function mint(address to) external returns (bool);
 }
