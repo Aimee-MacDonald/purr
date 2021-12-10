@@ -1,44 +1,89 @@
 const { expect } = require('chai')
+const { MockProvider } = require('ethereum-waffle')
+const { ContractFactory } = require('ethers')
+
+const PurrCoin = require('../../../src/frontend/artifacts/src/blockchain/contracts/PurrCoin.sol/PurrCoin.json')
 
 describe('PurrCoin', () => {
-  let signers, purrCoin, purrNFT, purrer, purrerFactory
-  let clonedPurrer, clonedPurrerAddress, clonedPurrer2, clonedPurrerAddress2
+  const setup = async () => {
+    const wallets = new MockProvider().getWallets()
+    const contractFactory = new ContractFactory(PurrCoin.abi, PurrCoin.bytecode, wallets[0])
+    const purrCoin = await contractFactory.deploy()
 
-  beforeEach(async () => {
-    signers = await ethers.getSigners()
+    return { wallets, purrCoin }
+  }
 
-    const PurrCoin = await ethers.getContractFactory('TIPurrCoin')
-    purrCoin = await PurrCoin.deploy()
+  describe('Permissions', () => {
+    it('Should add a new minter', async () => {
+      const { wallets, purrCoin } = await setup()
 
-    const PurrNFT = await ethers.getContractFactory('PurrNFT')
-    purrNFT = await PurrNFT.deploy(purrCoin.address)
-
-    const Purrer = await ethers.getContractFactory('Purrer')
-    purrer = await Purrer.deploy()
-
-    const Loot = await ethers.getContractFactory('PCLResetBalances')
-    const loot = await Loot.deploy()
-
-    const PurrerFactory = await ethers.getContractFactory('PurrerFactory')
-    purrerFactory = await PurrerFactory.deploy(purrer.address, purrCoin.address, purrNFT.address, loot.address)
-
-    clonedPurrer = await purrerFactory.join()
-    clonedPurrerAddress = await purrerFactory.purrerAddress(signers[0].address)
-
-    clonedPurrer2 = await purrerFactory.connect(signers[1]).join()
-    clonedPurrerAddress2 = await purrerFactory.purrerAddress(signers[0].address)
-  })
-
-  describe('Mint allowance', () => {
-    it('Should have a balance in the test account', async () => {
-      expect(await purrCoin.balanceOf(signers[0].address)).to.equal('50000000000000000000')
-    })
-
-    it('Should return the mint allowance of the specified address', async () => {
-      expect(await purrCoin.mintAllowanceOf(signers[0].address)).to.equal('30000000000000000000')
+      await purrCoin.addMinter(wallets[0].address)
     })
   })
 
+  describe('Ititial Balances', () => {
+    it('Minters should enjoy a balance and minting allowance', async () => {
+      const { wallets, purrCoin } = await setup()
+      await purrCoin.addMinter(wallets[0].address)
+      
+      const balance = await purrCoin.balanceOf(wallets[0].address)
+      const mintAllowance = await purrCoin.mintAllowanceOf(wallets[0].address)
+
+      expect(balance).to.equal('0')
+      expect(mintAllowance).to.equal('1')
+    })
+  })
+
+  describe('Transfers', () => {
+    it('When transfer amount <= allowance, Should mint amount to reciever', async () => {
+      const { wallets, purrCoin } = await setup()
+      await purrCoin.addMinter(wallets[0].address)
+      await purrCoin.addMinter(wallets[1].address)
+      expect(await purrCoin.balanceOf(wallets[0].address)).to.equal('0')
+      expect(await purrCoin.mintAllowanceOf(wallets[0].address)).to.equal('1')
+      expect(await purrCoin.balanceOf(wallets[1].address)).to.equal('0')
+      expect(await purrCoin.mintAllowanceOf(wallets[1].address)).to.equal('1')
+
+      await purrCoin.transfer(wallets[1].address, 1)
+
+      expect(await purrCoin.balanceOf(wallets[0].address)).to.equal('0')
+      expect(await purrCoin.mintAllowanceOf(wallets[0].address)).to.equal('0')
+      expect(await purrCoin.balanceOf(wallets[1].address)).to.equal('1')
+      expect(await purrCoin.mintAllowanceOf(wallets[1].address)).to.equal('1')
+    })
+
+    it('When transfer amount > allowance, Should mint full allowance and transfer from balance', async () => {
+      const { wallets, purrCoin } = await setup()
+      await purrCoin.addMinter(wallets[0].address)
+      await purrCoin.addMinter(wallets[1].address)
+      await purrCoin.transfer(wallets[1].address, 1)
+      expect(await purrCoin.balanceOf(wallets[0].address)).to.equal('0')
+      expect(await purrCoin.mintAllowanceOf(wallets[0].address)).to.equal('0')
+      expect(await purrCoin.balanceOf(wallets[1].address)).to.equal('1')
+      expect(await purrCoin.mintAllowanceOf(wallets[1].address)).to.equal('1')
+
+      await purrCoin.connect(wallets[1]).transfer(wallets[0].address, 2)
+    })
+
+    it('When transfer amount > allowance + balance, Should revert', async () => {
+      const { wallets, purrCoin } = await setup()
+      await purrCoin.addMinter(wallets[0].address)
+      await purrCoin.addMinter(wallets[1].address)
+      expect(await purrCoin.balanceOf(wallets[0].address)).to.equal('0')
+      expect(await purrCoin.mintAllowanceOf(wallets[0].address)).to.equal('1')
+      expect(await purrCoin.balanceOf(wallets[1].address)).to.equal('0')
+      expect(await purrCoin.mintAllowanceOf(wallets[1].address)).to.equal('1')
+
+      expect(purrCoin.transfer(wallets[1].address, 2)).to.be.revertedWith('ERC20: transfer amount exceeds balance')
+    })
+  })
+})
+
+
+
+
+/* 
+describe('PurrCoin', () => {
   describe('transactions', () => {
     it('Can be sent to purrers and NFT contract', async () => {
       expect(await purrCoin.balanceOf(signers[0].address)).to.equal('50000000000000000000')
@@ -56,50 +101,6 @@ describe('PurrCoin', () => {
       expect(purrCoin.transfer(purrer.address, '10000000000000000000')).to.be.revertedWith('purrCoin: This address cannot recieve PURR')
       expect(purrCoin.transfer(signers[4].address, '10000000000000000000')).to.be.revertedWith('purrCoin: This address cannot recieve PURR')
     })
-
-    it('When transfer amount > allowance + balance, Should revert', async () => {
-      const allowance = await purrCoin.mintAllowanceOf(clonedPurrerAddress)
-      const balance = await purrCoin.balanceOf(clonedPurrerAddress)
-      const transferAmount = '100000000000000000000'
-
-      expect(purrCoin.transfer(clonedPurrerAddress2, transferAmount)).to.be.revertedWith('ERC20: transfer amount exceeds balance')
-    })
-
-    it('When transfer amount <= allowance, Should mint amount to reciever', async () => {
-      let senderAllowance = await purrCoin.mintAllowanceOf(signers[0].address)
-      let recieverBalance = await purrCoin.balanceOf(clonedPurrerAddress2)
-      const transferAmount = '30000000000000000000'
-
-      expect(senderAllowance).to.equal('30000000000000000000')
-      expect(recieverBalance).to.equal(0)
-
-      await purrCoin.transfer(clonedPurrerAddress2, transferAmount)
-
-      senderAllowance = await purrCoin.mintAllowanceOf(signers[0].address)
-      recieverBalance = await purrCoin.balanceOf(clonedPurrerAddress2)
-
-      expect(senderAllowance).to.equal(0)
-      expect(recieverBalance).to.equal('30000000000000000000')
-    })
-
-    it('When transfer amount > allowance, Should mint full allowance and transfer from balance', async () => {
-      let senderAllowance = await purrCoin.mintAllowanceOf(signers[0].address)
-      let senderBalance = await purrCoin.balanceOf(signers[0].address)
-      const transferAmount = '40000000000000000000'
-
-      expect(senderAllowance).to.equal('30000000000000000000')
-      expect(senderBalance).to.equal('50000000000000000000')
-
-      await purrCoin.transfer(clonedPurrerAddress, transferAmount)
-
-      senderAllowance = await purrCoin.mintAllowanceOf(signers[0].address)
-      senderBalance = await purrCoin.balanceOf(signers[0].address)
-      const recieverBalance = await purrCoin.balanceOf(clonedPurrerAddress)
-
-      expect(senderAllowance).to.equal(0)
-      expect(senderBalance).to.equal('40000000000000000000')
-      expect(recieverBalance).to.equal('40000000000000000000')
-    })
   })
 
   describe('Restrictions', () => {
@@ -112,3 +113,4 @@ describe('PurrCoin', () => {
     })
   })
 })
+ */
