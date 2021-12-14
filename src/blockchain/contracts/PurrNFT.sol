@@ -8,6 +8,77 @@ contract PurrNFT is ERC721Enumerable {
   using Counters for Counters.Counter;
   Counters.Counter private _tokenIdTracker;
 
+  mapping(uint256 => MintData) private _mintData;
+  mapping(uint256 => string) private _tokenURIs;
+
+  address private _purrCoinAddress;
+  
+  struct MintData {
+    address from;
+    address to;
+    uint256 timeStamp;
+    string message;
+    uint256 value;
+    bool isRedeemed;
+  }
+
+  constructor(address purrCoinAddress) ERC721("Purr", "PURR") {
+    _purrCoinAddress = purrCoinAddress;
+  }
+
+  function mint(address to, string memory message, uint256 value) external returns (bool) {
+    bool transferSuccess = IPurrCoin(_purrCoinAddress).transferFrom(_msgSender(), address(this), value);
+
+    _safeMint(to, _tokenIdTracker.current());
+    _mintData[_tokenIdTracker.current()] = MintData(_msgSender(), to, block.timestamp, message, value, false);
+    _setTokenURI(_tokenIdTracker.current(), "https://whispurr.herokuapp.com/purrNFTData");
+    _tokenIdTracker.increment();
+    return true;
+
+    /*
+    require(_isMinter[to], "PurrNFT: Only Purrers");
+    require(transferSuccess, "PurrNFT: $PURR Transfer Failed");
+    */
+  }
+
+  function getMintData(uint256 tokenId) public view returns (MintData memory) {
+    return _mintData[tokenId];
+  }
+
+  function tokenURI(uint256 tokenId) public view override returns (string memory) {
+    require(_exists(tokenId), "ERC721URIStorage: URI query for nonexistent token");
+    string memory _tokenURI = _tokenURIs[tokenId];
+    string memory base = _baseURI();
+
+    // If there is no base URI, return the token URI.
+    if (bytes(base).length == 0) {
+      return _tokenURI;
+    }
+    
+    // If both are set, concatenate the baseURI and tokenURI (via abi.encodePacked).
+    if (bytes(_tokenURI).length > 0) {
+      return string(abi.encodePacked(base, _tokenURI));
+    }
+    
+    return super.tokenURI(tokenId);
+  }
+
+  function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal virtual {
+    require(_exists(tokenId), "ERC721URIStorage: URI set of nonexistent token");
+    _tokenURIs[tokenId] = _tokenURI;
+  }
+}
+
+interface IPurrCoin {
+  function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
+}
+/* 
+
+
+contract PurrNFT is ERC721Enumerable {
+  using Counters for Counters.Counter;
+  Counters.Counter private _tokenIdTracker;
+
   struct MintData {
     address from;
     address to;
@@ -106,3 +177,4 @@ interface IERC20 {
   function transfer(address recipient, uint256 amount) external returns (bool);
   function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
 }
+ */

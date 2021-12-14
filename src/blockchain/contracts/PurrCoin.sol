@@ -28,7 +28,6 @@ contract PurrCoin is ERC20 {
 }
 
 /*
-
 contract PurrCoin is ERC20 {
   mapping(address => bool) private _recievers;
   address private _purrerFactoryAddress;

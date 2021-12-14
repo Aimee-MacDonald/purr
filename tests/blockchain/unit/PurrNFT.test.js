@@ -1,34 +1,68 @@
-const { expect } = require("chai")
+const { expect } = require('chai')
 
-describe("PurrNFT", () => {
-  let signers, purrNFT, purrCoin
-  let clonedPurrer, clonedPurrerAddress, clonedPurrer2, clonedPurrerAddress2
+describe('PurrNFT', () => {
+  let signers, purrNFT, mockPurrCoin
 
   beforeEach(async () => {
     signers = await ethers.getSigners()
 
-    const PurrCoin = await ethers.getContractFactory('TIPurrCoin')
+    const MockPurrCoin = await ethers.getContractFactory('MockPurrCoin')
     const PurrNFT = await ethers.getContractFactory('PurrNFT')
-    const Purrer = await ethers.getContractFactory('Purrer')
-    const PurrerFactory = await ethers.getContractFactory('PurrerFactory')
-    const Loot = await ethers.getContractFactory('PCLResetBalances')
-    
-    const purrer = await Purrer.deploy()
-    purrCoin = await PurrCoin.deploy()
-    purrNFT = await PurrNFT.deploy(purrCoin.address)
-    const loot = await Loot.deploy()
-    const purrerFactory = await PurrerFactory.deploy(purrer.address, purrCoin.address, purrNFT.address, loot.address)
 
-    await purrerFactory.join()
-    await purrerFactory.connect(signers[1]).join()
-    
-    clonedPurrerAddress = await purrerFactory.purrerAddress(signers[0].address)
-    clonedPurrerAddress2 = await purrerFactory.purrerAddress(signers[1].address)
-
-    clonedPurrer = await Purrer.attach(clonedPurrerAddress)
-    clonedPurrer2 = await Purrer.attach(clonedPurrerAddress2)
+    mockPurrCoin = await MockPurrCoin.deploy()
+    purrNFT = await PurrNFT.deploy(mockPurrCoin.address)
   })
 
+  describe('Minting', () => {
+    it('Can be minted', async () => {
+      expect(await purrNFT.balanceOf(signers[1].address)).to.equal(0)
+  
+      await purrNFT.mint(signers[1].address, 'Message', 1)
+  
+      expect(await purrNFT.balanceOf(signers[1].address)).to.equal(1)
+    })
+
+    it('Should store minting data about the transaction', async () => {
+      const message = 'Message'
+      const value = '1'
+
+      await purrNFT.mint(signers[1].address, message, value)
+      const mintData = await purrNFT.getMintData(0)
+
+      expect(mintData.from).to.equal(signers[0].address)
+      expect(mintData.to).to.equal(signers[1].address)
+      expect(mintData.timeStamp.toString()).to.not.equal('')
+      expect(mintData.message).to.equal(message)
+      expect(mintData.value).to.equal(value)
+    })
+
+    it('Should return a URI for external metadata', async () => {
+      await purrNFT.mint(signers[1].address, 'Message', 1)
+
+      const tokenURI = await purrNFT.tokenURI(0)
+      
+      expect(tokenURI).to.equal('https://whispurr.herokuapp.com/purrNFTData')
+    })
+
+    it('Should wrap PurrCoin', async () => {
+      const value = 1
+      
+      await purrNFT.mint(signers[1].address, 'Message', value)
+
+      expect(await mockPurrCoin.transferred()).to.equal(true)
+    })
+  })
+})
+
+
+
+
+
+
+/* 
+const { expect } = require("chai")
+
+describe("PurrNFT", () => {
   describe('Minting', () => {
     it('Can be minted by a purrer', async () => {
       let senderAllowance = await purrCoin.mintAllowanceOf(clonedPurrerAddress)
@@ -78,58 +112,7 @@ describe("PurrNFT", () => {
       expect(senderAllowance).to.equal('1000000000000000000')
       expect(recieverBalance).to.equal(0)
     })
-
-    it('When minted, Should store metadata about the transaction', async () => {
-      const message = 'Message'
-      const value = '1000000000000000000'
-
-      const senderAllowance = await purrCoin.mintAllowanceOf(clonedPurrerAddress)
-      const recieverBalance = await purrNFT.balanceOf(clonedPurrerAddress2)
-
-      expect(senderAllowance).to.equal('1000000000000000000')
-      expect(recieverBalance).to.equal(0)
-
-      await clonedPurrer.purr(clonedPurrerAddress2, message, value)
-
-      const mintData = await purrNFT.getMintData(0)
-
-      expect(mintData.from).to.equal(clonedPurrerAddress)
-      expect(mintData.to).to.equal(clonedPurrerAddress2)
-      expect(mintData.timeStamp.toString()).to.not.equal('')
-      expect(mintData.message).to.equal(message)
-      expect(mintData.value).to.equal(value)
-    })
-
-    it('Should return a URI for external metadata', async () => {
-      const message = 'Message'
-      const value = '1000000000000000000'
-
-      const senderAllowance = await purrCoin.mintAllowanceOf(clonedPurrerAddress)
-      const recieverBalance = await purrNFT.balanceOf(clonedPurrerAddress2)
-
-      expect(senderAllowance).to.equal('1000000000000000000')
-      expect(recieverBalance).to.equal(0)
-
-      await clonedPurrer.purr(clonedPurrerAddress2, message, value)
-
-      expect(await purrNFT.tokenURI(0)).to.equal('https://whispurr.herokuapp.com/purrNFTData')
-    })
-
-    it('When minting, Should wrap $PURR', async () => {
-      const senderAllowance = await purrCoin.mintAllowanceOf(clonedPurrerAddress)
-      const recieverBalance = await purrNFT.balanceOf(clonedPurrerAddress2)
-
-      expect(senderAllowance).to.equal('1000000000000000000')
-      expect(recieverBalance).to.equal(0)
-
-      const value = '1000000000000000000'
-      await clonedPurrer.purr(clonedPurrerAddress2, 'Message', value)
-
-      expect(await purrNFT.balanceOf(clonedPurrerAddress2)).to.equal(1)
-      expect(await purrCoin.mintAllowanceOf(clonedPurrerAddress)).to.equal(0)
-      expect(await purrCoin.balanceOf(purrNFT.address)).to.equal(value)
-    })
-  })
+ })
 
   describe('Redemption', () => {
     it('Wrapped tokens can be redeemed by owner', async () => {
@@ -157,3 +140,4 @@ describe("PurrNFT", () => {
     })
   })
 })
+ */

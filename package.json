@@ -1,6 +1,6 @@
 {
   "name": "purr",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "description": "Digital gratitude",
   "main": "src/backend/server.js",
   "repository": "https://github.com/Aimee-MacDonald/purr.git",

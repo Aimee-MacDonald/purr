@@ -7,6 +7,36 @@ import "@openzeppelin/contracts-upgradeable/token/ERC721/utils/ERC721HolderUpgra
 contract Purrer is OwnableUpgradeable, ERC721HolderUpgradeable {
   address private _purrCoinAddress;
   address private _purrNFTAddress;
+
+  function init(address purrCoinAddress, address purrNFTAddress) external initializer returns (bool) {
+    OwnableUpgradeable.__Ownable_init();
+    _purrCoinAddress = purrCoinAddress;
+    _purrNFTAddress = purrNFTAddress;
+    return true;
+  }
+
+  function purr(address to, string memory message, uint256 value) external onlyOwner returns (bool) {
+    IPurrCoin(_purrCoinAddress).approve(_purrNFTAddress, value);
+    IPurrNFT(_purrNFTAddress).mint(to, message, value);
+    return true;
+  }
+}
+
+interface IPurrCoin {
+  function approve(address spender, uint256 amount) external returns (bool);
+}
+
+interface IPurrNFT {
+  function mint(address to, string memory message, uint256 value) external returns (bool);
+}
+
+/*
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/utils/ERC721HolderUpgradeable.sol";
+
+contract Purrer is OwnableUpgradeable, ERC721HolderUpgradeable {
+  address private _purrCoinAddress;
+  address private _purrNFTAddress;
   address private _lootFactoryAddress;
 
   function init(address purrCoinAddress, address purrNFTAddress, address lootFactoryAddress) external initializer {
@@ -47,4 +77,4 @@ interface IPurrCoin {
 interface ILootFactory {
   function addressOf(uint256 tokenId) external view returns (address);
   function burn(uint256 tokenId) external returns (bool);
-}
+} */
