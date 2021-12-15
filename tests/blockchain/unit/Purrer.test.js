@@ -39,11 +39,17 @@ describe('Purrer', () => {
   })
   
   describe('Purring', () => {
-    it('Can Purr', async () => {
+    it('Purr Should Approve the purrcoin for spending and mint the PurrNFT that is sent', async () => {
+      let wasApproved = await mockPurrCoin.wasApproved()
+      let wasMinted = await mockPurrNFT.wasMinted()
+
+      expect(wasApproved).to.equal(false)
+      expect(wasMinted).to.equal(false)
+
       await purrer.purr(purrer2.address, 'Message', '1000000000000000000')
 
-      const wasApproved = await mockPurrCoin.wasApproved()
-      const wasMinted = await mockPurrNFT.wasMinted()
+      wasApproved = await mockPurrCoin.wasApproved()
+      wasMinted = await mockPurrNFT.wasMinted()
 
       expect(wasApproved).to.equal(true)
       expect(wasMinted).to.equal(true)

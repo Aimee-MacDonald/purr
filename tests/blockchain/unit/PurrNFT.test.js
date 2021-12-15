@@ -52,6 +52,37 @@ describe('PurrNFT', () => {
       expect(await mockPurrCoin.transferred()).to.equal(true)
     })
   })
+
+  describe('Redemption', () => {
+    it('Should be redeemed by owner', async () => {
+      await purrNFT.mint(signers[0].address, 'Message', 1)
+      expect(await purrNFT.balanceOf(signers[0].address)).to.equal(1)
+
+      await purrNFT.redeem(0)
+    })
+
+    it('Should not be redeemed by non owner', async () => {
+      await purrNFT.mint(signers[1].address, 'Message', 1)
+      expect(await purrNFT.balanceOf(signers[1].address)).to.equal(1)
+
+      expect(purrNFT.redeem(0)).to.be.revertedWith('PurrNFT: Only owner can redeem')
+    })
+
+    it('Should only be redeemed once', async () => {
+      await purrNFT.mint(signers[0].address, 'Message', 1)
+      expect(await purrNFT.balanceOf(signers[0].address)).to.equal(1)
+
+      await purrNFT.redeem(0)
+      
+      expect(purrNFT.redeem(0)).to.be.revertedWith('PurrNFT: Token already redeemed')
+    })
+    
+    /* 
+    it("Should credit the owner's PurrCoin balance", () => {
+      expect(mockPurrCoin)
+    })
+    */
+  })
 })
 
 

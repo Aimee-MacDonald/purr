@@ -27,18 +27,15 @@ contract PurrNFT is ERC721Enumerable {
   }
 
   function mint(address to, string memory message, uint256 value) external returns (bool) {
+    //require(_isMinter[to], "PurrNFT: Only Purrers");
     bool transferSuccess = IPurrCoin(_purrCoinAddress).transferFrom(_msgSender(), address(this), value);
+    require(transferSuccess, "PurrNFT: $PURR Transfer Failed");
 
     _safeMint(to, _tokenIdTracker.current());
     _mintData[_tokenIdTracker.current()] = MintData(_msgSender(), to, block.timestamp, message, value, false);
     _setTokenURI(_tokenIdTracker.current(), "https://whispurr.herokuapp.com/purrNFTData");
     _tokenIdTracker.increment();
     return true;
-
-    /*
-    require(_isMinter[to], "PurrNFT: Only Purrers");
-    require(transferSuccess, "PurrNFT: $PURR Transfer Failed");
-    */
   }
 
   function getMintData(uint256 tokenId) public view returns (MintData memory) {
@@ -67,36 +64,22 @@ contract PurrNFT is ERC721Enumerable {
     require(_exists(tokenId), "ERC721URIStorage: URI set of nonexistent token");
     _tokenURIs[tokenId] = _tokenURI;
   }
+
+  function redeem(uint256 tokenId) external {
+    require(ownerOf(tokenId) == _msgSender(), "PurrNFT: Only owner can redeem");
+    require(!_mintData[tokenId].isRedeemed, "PurrNFT: Token already redeemed");
+    _mintData[tokenId].isRedeemed = true;
+  }
 }
 
 interface IPurrCoin {
   function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
 }
+
 /* 
-
-
 contract PurrNFT is ERC721Enumerable {
-  using Counters for Counters.Counter;
-  Counters.Counter private _tokenIdTracker;
-
-  struct MintData {
-    address from;
-    address to;
-    uint256 timeStamp;
-    string message;
-    uint256 value;
-    bool isRedeemed;
-  }
-
-  mapping(uint256 => MintData) private _mintData;
   mapping(address => bool) private _isMinter;
-  mapping(uint256 => string) private _tokenURIs;
-  address private _purrCoinAddress;
   address private _purrerFactoryAddress;
-
-  constructor(address purrCoinAddress) ERC721("Purr", "PURR") {
-    _purrCoinAddress = purrCoinAddress;
-  }
 
   modifier onlyPurrer {
     require(_isMinter[_msgSender()], "PurrNFT: Only Purrers");
@@ -119,42 +102,6 @@ contract PurrNFT is ERC721Enumerable {
     return true;
   }
 
-  function mint(address to, string memory message, uint256 value) external onlyPurrer returns (bool) {
-    require(_isMinter[to], "PurrNFT: Only Purrers");
-    bool transferSuccess = IERC20(_purrCoinAddress).transferFrom(_msgSender(), address(this), value);
-    require(transferSuccess, "PurrNFT: $PURR Transfer Failed");
-
-    _mintData[_tokenIdTracker.current()] = MintData(_msgSender(), to, block.timestamp, message, value, false);
-    _safeMint(to, _tokenIdTracker.current());
-    _setTokenURI(_tokenIdTracker.current(), "https://whispurr.herokuapp.com/purrNFTData");
-    _tokenIdTracker.increment();
-    return true;
-  }
-  
-  function getMintData(uint256 tokenId) public view returns (MintData memory) {
-    return _mintData[tokenId];
-  }
-
-  function tokenURI(uint256 tokenId) public view override returns (string memory) {
-    require(_exists(tokenId), "ERC721URIStorage: URI query for nonexistent token");
-    string memory _tokenURI = _tokenURIs[tokenId];
-    string memory base = _baseURI();
-    // If there is no base URI, return the token URI.
-    if (bytes(base).length == 0) {
-        return _tokenURI;
-    }
-    // If both are set, concatenate the baseURI and tokenURI (via abi.encodePacked).
-    if (bytes(_tokenURI).length > 0) {
-        return string(abi.encodePacked(base, _tokenURI));
-    }
-    return super.tokenURI(tokenId);
-  }
-
-  function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal virtual {
-    require(_exists(tokenId), "ERC721URIStorage: URI set of nonexistent token");
-    _tokenURIs[tokenId] = _tokenURI;
-  }
-
   function redeem(uint256 tokenId) external returns (bool) {
     require(ownerOf(tokenId) == _msgSender(), "PurrNFT: This Token does not Belong to you");
     require(!_mintData[tokenId].isRedeemed, "PurrNFT: Tokens Already Redeemed");
@@ -171,10 +118,5 @@ contract PurrNFT is ERC721Enumerable {
   function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721Enumerable) returns (bool) {
     return super.supportsInterface(interfaceId);
   }
-}
-
-interface IERC20 {
-  function transfer(address recipient, uint256 amount) external returns (bool);
-  function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
 }
  */

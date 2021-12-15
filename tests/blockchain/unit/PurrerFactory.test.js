@@ -38,17 +38,21 @@ describe('PurrerFactory', () => {
     })
 
     it('Deploys a new Purrer proxy contract', async () => {
-      expect(await purrerFactory.addressOf(signers[0].address)).to.equal('0x0000000000000000000000000000000000000000')
-      expect(await purrerFactory.addressOf(signers[1].address)).to.equal('0x0000000000000000000000000000000000000000')
+      //The PurrerProxy is the proxy that is created by purr factor.
+      //It is the instantiation of a Purrer contract
+      purrerProxyAddress_0 = await purrerFactory.addressOf(signers[0].address)
+      purrerProxyAddress_1 = await purrerFactory.addressOf(signers[1].address)
+      expect(purrerProxyAddress_0).to.equal('0x0000000000000000000000000000000000000000')
+      expect(purrerProxyAddress_1).to.equal('0x0000000000000000000000000000000000000000')
       
       await purrerFactory.mint(signers[0].address)
       await purrerFactory.mint(signers[1].address)
-      const addr0 = await purrerFactory.addressOf(signers[0].address)
-      const addr1 = await purrerFactory.addressOf(signers[1].address)
-
-      expect(addr0).to.not.equal('0x0000000000000000000000000000000000000000')
-      expect(addr1).to.not.equal('0x0000000000000000000000000000000000000000')
-      expect(addr0).to.not.equal(addr1)
+      purrerProxyAddress_0 = await purrerFactory.addressOf(signers[0].address)
+      purrerProxyAddress_1 = await purrerFactory.addressOf(signers[1].address)
+      
+      expect(purrerProxyAddress_0).to.not.equal('0x0000000000000000000000000000000000000000')
+      expect(purrerProxyAddress_1).to.not.equal('0x0000000000000000000000000000000000000000')
+      expect(purrerProxyAddress_0).to.not.equal(purrerProxyAddress_1)
     })
 
     it('Should Initialise the new Purrer', async () => {

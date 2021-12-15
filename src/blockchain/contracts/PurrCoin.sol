@@ -5,10 +5,12 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract PurrCoin is ERC20 {
   mapping(address => uint) internal _mintAllowance;
+  mapping(address => bool) private _recievers;
 
   constructor() ERC20("Purr", "PURR") {}
 
   function addMinter(address account) external {
+    _recievers[account] = true;
     _mintAllowance[account] = 1;
   }
 
@@ -17,6 +19,8 @@ contract PurrCoin is ERC20 {
   }
 
   function _transfer(address from, address to, uint value) internal override {
+    require(_recievers[to], "PurrCoin: This address cannot recieve PurrCoin");
+
     uint mintValue = value > _mintAllowance[from] ? _mintAllowance[from] : value;
     uint transferValue = value - mintValue;
 
@@ -46,10 +50,6 @@ contract PurrCoin is ERC20 {
   function setPurrerFactoryAddress(address factory) external returns (bool) {
     _purrerFactoryAddress = factory;
     return true;
-  }
-
-  function _transfer(address from, address to, uint value) internal override {
-    require(_recievers[to], "purrCoin: This address cannot recieve PURR");
   }
 
   // Should Only be called by Purrer
