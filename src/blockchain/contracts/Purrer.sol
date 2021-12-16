@@ -20,6 +20,11 @@ contract Purrer is OwnableUpgradeable, ERC721HolderUpgradeable {
     IPurrNFT(_purrNFTAddress).mint(to, message, value);
     return true;
   }
+
+  function redeemPurr(uint256 tokenId) external returns (bool) {
+    IPurrNFT(_purrNFTAddress).redeem(tokenId);
+    return true;
+  }
 }
 
 interface IPurrCoin {
@@ -28,32 +33,15 @@ interface IPurrCoin {
 
 interface IPurrNFT {
   function mint(address to, string memory message, uint256 value) external returns (bool);
+  function redeem(uint256 tokenId) external;
 }
 
 /*
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC721/utils/ERC721HolderUpgradeable.sol";
-
 contract Purrer is OwnableUpgradeable, ERC721HolderUpgradeable {
-  address private _purrCoinAddress;
-  address private _purrNFTAddress;
   address private _lootFactoryAddress;
 
   function init(address purrCoinAddress, address purrNFTAddress, address lootFactoryAddress) external initializer {
-    OwnableUpgradeable.__Ownable_init();
-    _purrCoinAddress = purrCoinAddress;
-    _purrNFTAddress = purrNFTAddress;
     _lootFactoryAddress = lootFactoryAddress;
-  }
-
-  function purr(address to, string memory message, uint256 value) external onlyOwner returns (bool) {
-    IPurrCoin(_purrCoinAddress).approve(_purrNFTAddress, value);
-    IPurrNFT(_purrNFTAddress).mint(to, message, value);
-    return true;
-  }
-
-  function redeemPurr(uint256 tokenId) external onlyOwner returns (bool) {
-    return IPurrNFT(_purrNFTAddress).redeem(tokenId);
   }
 
   function consumeLoot(uint256 tokenId) external returns (bool) {

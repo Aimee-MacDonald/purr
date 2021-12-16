@@ -6,12 +6,14 @@ contract MockPurrCoin {
   bool public wasApproved;
   bool public recieverAdded;
   bool public purrCoinsTransferred;
+  bool public isMinter;
 
   constructor() {
     transferred = false;
     wasApproved = false;
     recieverAdded = false;
     purrCoinsTransferred = false;
+    isMinter = false;
   }
 
   function transfer(address recipient, uint256 amount) external returns (bool) {
@@ -31,5 +33,9 @@ contract MockPurrCoin {
 
   function addReciever(address account) external returns (bool) {
     recieverAdded = true;
+  }
+
+  function addMinter(address account) external {
+    isMinter = true;
   }
 }

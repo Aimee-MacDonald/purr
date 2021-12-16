@@ -24,25 +24,13 @@ contract PurrerFactory is Ownable, ERC721URIStorage {
   }
 
   /*
-    require(_userToPurrerAddress[_msgSender()] == address(0), "Purrer: Only one Purrer per wallet");
-
-    address cloneAddress = Clones.clone(purrerImplementationAddress);
-
-    _userToPurrerAddress[_msgSender()] = cloneAddress;
     _userToPurrerId[_msgSender()] = _tokenIdTracker.current();
     _isPurrer[cloneAddress] = true;
-
-    IPurrer(cloneAddress).init(purrCoinAddress, purrNFTAddress, lootFactoryAddress);
-    IPurrer(cloneAddress).transferOwnership(_msgSender());
 
     IPurrCoin(purrCoinAddress).addMinter(cloneAddress);
     IPurrCoin(purrCoinAddress).addReciever(cloneAddress);
 
     IPurrNFT(purrNFTAddress).addMinter(cloneAddress);
-    
-    _safeMint(_msgSender(), _tokenIdTracker.current());
-    _setTokenURI(_tokenIdTracker.current(), "https://whispurr.herokuapp.com/purrerData");
-    _tokenIdTracker.increment();
   */
 
   function mint(address to) external returns (bool) {
@@ -54,6 +42,8 @@ contract PurrerFactory is Ownable, ERC721URIStorage {
 
     IPurrer(cloneAddress).init(_purrCoinAddress, _purrNFTAddress);
     IPurrer(cloneAddress).transferOwnership(to);
+
+    IPurrCoin(_purrCoinAddress).addMinter(cloneAddress);
 
     _safeMint(to, _tokenIdTracker.current());
     _setTokenURI(_tokenIdTracker.current(), "https://whispurr.herokuapp.com/purrerData");
@@ -67,18 +57,17 @@ contract PurrerFactory is Ownable, ERC721URIStorage {
   }
 }
 
+interface IPurrCoin {
+  function addMinter(address account) external;
+}
+
 interface IPurrer {
   function init(address purrCoinAddress, address purrNFTAddress) external returns (bool);
   function transferOwnership(address newOwner) external;
   function owner() external view returns (address);
 }
 
-/* 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
-import "@openzeppelin/contracts/proxy/Clones.sol";
-
+/*
 contract PurrerFactory is Ownable, ERC721URIStorage {
   using Counters for Counters.Counter;
   Counters.Counter private _tokenIdTracker;

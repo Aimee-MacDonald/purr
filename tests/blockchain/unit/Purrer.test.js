@@ -36,6 +36,10 @@ describe('Purrer', () => {
     it('Should be owned by the user', async () => {
       expect(await purrer.owner()).to.equal(signers[0].address)
     })
+
+    it('Should be registered as a minter with PurrCoin', async () => {
+      expect(await mockPurrCoin.isMinter()).to.equal(true)
+    })
   })
   
   describe('Purring', () => {
@@ -57,6 +61,15 @@ describe('Purrer', () => {
 
     it('Can only be called by the owner', () => {
       expect(purrer2.purr(purrer.address, 'Message', '1000000000000000000')).to.be.revertedWith('Ownable: caller is not the owner')
+    })
+
+    it('Should redeem a PurrNFT', async () => {
+      await purrer.purr(purrer2.address, 'Message', '1000000000000000000')
+      expect(await mockPurrNFT.wasRedeemed()).to.equal(false)
+      
+      await purrer.redeemPurr(0)
+
+      expect(await mockPurrNFT.wasRedeemed()).to.equal(true)
     })
   })
 })

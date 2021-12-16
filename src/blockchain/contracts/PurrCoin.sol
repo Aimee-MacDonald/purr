@@ -45,8 +45,6 @@ contract PurrCoin is ERC20 {
     _;
   }
 
-  
-
   // Should only be called once by the owner
   function setPurrerFactoryAddress(address factory) external returns (bool) {
     _purrerFactoryAddress = factory;

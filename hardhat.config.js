@@ -18,7 +18,7 @@ module.exports = {
     sources: './src/blockchain/contracts',
     cache: './src/blockchain/cache',
     artifacts: './src/frontend/artifacts',
-    tests: './tests/blockchain/integration'
+    tests: './tests/blockchain/active'
   },
   networks: {
     hardhat: {
