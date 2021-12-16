@@ -1,16 +1,16 @@
-require("@nomiclabs/hardhat-waffle");
+require("@nomiclabs/hardhat-waffle")
 require('dotenv').config()
 
-const INFURA_URL = 'https://rinkeby.infura.io/v3/f3a1a5f7ab254f30b3665488d7a83cb2'
-const PRIVATE_KEY = process.env.PRIVATE_KEY;
+const INFURA_URL = process.env.INFURA_URL
+const PRIVATE_KEY = process.env.PRIVATE_KEY
 
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
-  const accounts = await hre.ethers.getSigners();
+  const accounts = await hre.ethers.getSigners()
 
   for (const account of accounts) {
-    console.log(account.address);
+    console.log(account.address)
   }
-});
+})
 
 module.exports = {
   solidity: "0.8.4",
@@ -18,7 +18,7 @@ module.exports = {
     sources: './src/blockchain/contracts',
     cache: './src/blockchain/cache',
     artifacts: './src/frontend/artifacts',
-    tests: './tests/blockchain/unit'
+    tests: './tests/blockchain/integration'
   },
   networks: {
     hardhat: {

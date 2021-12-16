@@ -18,6 +18,10 @@ describe('PurrCoin', () => {
     it('Should add a new minter', async () => {
       await purrCoin.addMinter(signers[0].address)
     })
+
+    it('Should add a new reciever', async () => {
+      await purrCoin.addReciever(signers[0].address)
+    })
     
     /* 
     it('Only PurrerFactory can add new minters', () => {

@@ -14,6 +14,10 @@ contract PurrCoin is ERC20 {
     _mintAllowance[account] = 1;
   }
 
+  function addReciever(address reciever) external {
+    _recievers[reciever] = true;
+  }
+
   function mintAllowanceOf(address account) external view returns (uint256) {
     return _mintAllowance[account];
   }
@@ -41,10 +45,7 @@ contract PurrCoin is ERC20 {
     _;
   }
 
-  function addReciever(address reciever) external onlyFactory returns (bool) {
-    _recievers[reciever] = true;
-    return true;
-  }
+  
 
   // Should only be called once by the owner
   function setPurrerFactoryAddress(address factory) external returns (bool) {

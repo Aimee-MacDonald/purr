@@ -13,6 +13,12 @@ describe('PurrNFT', () => {
     purrNFT = await PurrNFT.deploy(mockPurrCoin.address)
   })
 
+  describe('Deployment', () => {
+    it('Should list itself as a PurrCoin reciever', async () => {
+      expect(await mockPurrCoin.recieverAdded()).to.equal(true)
+    })
+  })
+
   describe('Minting', () => {
     it('Can be minted', async () => {
       expect(await purrNFT.balanceOf(signers[1].address)).to.equal(0)
@@ -77,11 +83,17 @@ describe('PurrNFT', () => {
       expect(purrNFT.redeem(0)).to.be.revertedWith('PurrNFT: Token already redeemed')
     })
     
-    /* 
-    it("Should credit the owner's PurrCoin balance", () => {
-      expect(mockPurrCoin)
+    
+    it("Should credit the owner's PurrCoin balance", async () => {
+      await purrNFT.mint(signers[0].address, 'Message', 1)
+      expect(await purrNFT.balanceOf(signers[0].address)).to.equal(1)
+      
+      await purrNFT.redeem(0)
+
+      const purrCoinsTransferred = await mockPurrCoin.purrCoinsTransferred()
+      expect(purrCoinsTransferred).to.equal(true)
     })
-    */
+   
   })
 })
 

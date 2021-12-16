@@ -24,12 +24,13 @@ contract PurrNFT is ERC721Enumerable {
 
   constructor(address purrCoinAddress) ERC721("Purr", "PURR") {
     _purrCoinAddress = purrCoinAddress;
+    IPurrCoin(_purrCoinAddress).addReciever(address(this));
   }
 
   function mint(address to, string memory message, uint256 value) external returns (bool) {
     //require(_isMinter[to], "PurrNFT: Only Purrers");
     bool transferSuccess = IPurrCoin(_purrCoinAddress).transferFrom(_msgSender(), address(this), value);
-    require(transferSuccess, "PurrNFT: $PURR Transfer Failed");
+    require(transferSuccess, "PurrNFT: PurrCoin Transfer Failed");
 
     _safeMint(to, _tokenIdTracker.current());
     _mintData[_tokenIdTracker.current()] = MintData(_msgSender(), to, block.timestamp, message, value, false);
@@ -66,14 +67,22 @@ contract PurrNFT is ERC721Enumerable {
   }
 
   function redeem(uint256 tokenId) external {
-    require(ownerOf(tokenId) == _msgSender(), "PurrNFT: Only owner can redeem");
+    address tokenOwner = ownerOf(tokenId);
+
+    require(tokenOwner == _msgSender(), "PurrNFT: Only owner can redeem");
     require(!_mintData[tokenId].isRedeemed, "PurrNFT: Token already redeemed");
+
+    bool transferSuccess = IPurrCoin(_purrCoinAddress).transfer(tokenOwner, _mintData[tokenId].value);
+    require(transferSuccess, "PurrNFT: PurrCoin Transfer Failed");
+
     _mintData[tokenId].isRedeemed = true;
   }
 }
 
 interface IPurrCoin {
+  function transfer(address recipient, uint256 amount) external returns (bool);
   function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
+  function addReciever(address reciever) external;
 }
 
 /* 
