@@ -2,16 +2,24 @@ const { expect } = require('chai')
 
 describe('PurrCoin', () => {
   let signers, purrCoin
-  let mockPurrer
+  let mockPurrer, mockLootFactory, mockPurrerFactory, mockLoot
 
   beforeEach(async () => {
     signers = await ethers.getSigners()
 
-    const PurrCoin = await ethers.getContractFactory('PurrCoin')
-    purrCoin = await PurrCoin.deploy()
-
+    const MockPurrerFactory = await ethers.getContractFactory('MockPurrerFactory')
     const MockPurrer = await ethers.getContractFactory('MockPurrer')
+    const MockLootFactory = await ethers.getContractFactory('MockLootFactory')
+    const PurrCoin = await ethers.getContractFactory('PurrCoin')
+    const MockLoot = await ethers.getContractFactory('MockLoot')
+    
+    mockPurrerFactory = await MockPurrerFactory.deploy()
     mockPurrer = await MockPurrer.deploy()
+    mockLootFactory = await MockLootFactory.deploy()
+    purrCoin = await PurrCoin.deploy(mockLootFactory.address)
+    mockLoot = await MockLoot.deploy()
+
+    await purrCoin.setPurrerFactory(mockPurrerFactory.address)
   })
 
   describe('Permissions', () => {
@@ -110,6 +118,41 @@ describe('PurrCoin', () => {
       expect(await purrCoin.mintAllowanceOf(signers[0].address)).to.equal('1')
 
       expect(purrCoin.transfer(signers[1].address, 2)).to.be.revertedWith('ERC20: transfer amount exceeds balance')
+    })
+  })
+  
+  describe('Loot', () => {
+    it('When Balance and Mint allowance both hit zero, should mint loot', async () => {
+      await purrCoin.addMinter(signers[0].address)
+      await purrCoin.addMinter(signers[1].address)
+      await mockPurrerFactory.setPurrer(signers[0].address)
+      await purrCoin.transfer(signers[1].address, 1)
+  
+      expect(await purrCoin.balanceOf(signers[0].address)).to.equal('0')
+      expect(await purrCoin.mintAllowanceOf(signers[0].address)).to.equal('0')
+      expect(await mockLootFactory.minted()).to.equal(true)
+    })
+  
+    it('Should not mint loot to non Purrers', async () => {
+      await purrCoin.addMinter(signers[0].address)
+      await purrCoin.addMinter(signers[1].address)
+      await purrCoin.transfer(signers[1].address, 1)
+  
+      expect(await purrCoin.balanceOf(signers[0].address)).to.equal('0')
+      expect(await purrCoin.mintAllowanceOf(signers[0].address)).to.equal('0')
+      expect(await mockLootFactory.minted()).to.equal(false)
+    })
+
+    it('Should run Loot logic', async () => {
+      await purrCoin.addMinter(mockPurrer.address)
+
+      expect(await purrCoin.balanceOf(mockPurrer.address)).to.equal('0')
+      expect(await purrCoin.mintAllowanceOf(mockPurrer.address)).to.equal('1')
+
+      await purrCoin.runLootLogic(mockPurrer.address, mockLoot.address)
+
+      expect(await purrCoin.balanceOf(mockPurrer.address)).to.equal('0')
+      expect(await purrCoin.mintAllowanceOf(mockPurrer.address)).to.equal('5')
     })
   })
 })

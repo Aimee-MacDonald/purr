@@ -7,16 +7,16 @@ describe('PurrerFactory', () => {
     signers = await ethers.getSigners()
 
     MockPurrerImplementation = await ethers.getContractFactory('MockPurrer')
-    const mockPurrerImplementation = await MockPurrerImplementation.deploy()
-
     const MockPurrCoin = await ethers.getContractFactory('MockPurrCoin')
-    const mockPurrCoin = await MockPurrCoin.deploy()
-
     const MockPurrNFT = await ethers.getContractFactory('MockPurrNFT')
-    const mockPurrNFT = await MockPurrNFT.deploy()
-
     const PurrerFactory = await ethers.getContractFactory('PurrerFactory')
-    purrerFactory = await PurrerFactory.deploy(mockPurrerImplementation.address, mockPurrCoin.address, mockPurrNFT.address)
+    const MockLootFactory = await ethers.getContractFactory('MockLootFactory')
+    
+    const mockPurrerImplementation = await MockPurrerImplementation.deploy()
+    const mockPurrCoin = await MockPurrCoin.deploy()
+    const mockPurrNFT = await MockPurrNFT.deploy()
+    const mockLootFactory = await MockLootFactory.deploy()
+    purrerFactory = await PurrerFactory.deploy(mockPurrerImplementation.address, mockPurrCoin.address, mockPurrNFT.address, mockLootFactory.address)
   })
 
   describe('Mint', () => {
@@ -88,6 +88,14 @@ describe('PurrerFactory', () => {
   describe('Governance', () => {
     it('Should be owned by deployer', async () => {
       expect(await purrerFactory.owner()).to.equal(signers[0].address)
+    })
+
+    it('Should return true for valid Purrer addresses & false for any other address', async () => {
+      await purrerFactory.mint(signers[0].address)
+      const purrerAddress = await purrerFactory.addressOf(signers[0].address)
+
+      expect(await purrerFactory.isPurrer(signers[0].address)).to.equal(false)
+      expect(await purrerFactory.isPurrer(purrerAddress)).to.equal(true)
     })
   })
 })

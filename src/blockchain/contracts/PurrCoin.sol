@@ -6,8 +6,12 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 contract PurrCoin is ERC20 {
   mapping(address => uint) internal _mintAllowance;
   mapping(address => bool) private _recievers;
+  address private _lootFactoryAddress;
+  address private _purrerFactoryAddress;
 
-  constructor() ERC20("Purr", "PURR") {}
+  constructor(address lootFactoryAddress) ERC20("Purr", "PURR") {
+    _lootFactoryAddress = lootFactoryAddress;
+  }
 
   function addMinter(address account) external {
     _recievers[account] = true;
@@ -18,12 +22,18 @@ contract PurrCoin is ERC20 {
     _recievers[reciever] = true;
   }
 
+  function setPurrerFactory(address purrerFactoryAddress) external {
+    require(_purrerFactoryAddress == address(0), "LootFactory: PurrerFactory can only be set once");
+    _purrerFactoryAddress = purrerFactoryAddress;
+  }
+
   function mintAllowanceOf(address account) external view returns (uint256) {
     return _mintAllowance[account];
   }
 
   function _transfer(address from, address to, uint value) internal override {
     require(_recievers[to], "PurrCoin: This address cannot recieve PurrCoin");
+    require(_purrerFactoryAddress != address(0), "PurrCoin: PurrerFactory was not set");
 
     uint mintValue = value > _mintAllowance[from] ? _mintAllowance[from] : value;
     uint transferValue = value - mintValue;
@@ -32,28 +42,24 @@ contract PurrCoin is ERC20 {
 
     if(mintValue > 0) _mint(to, mintValue);
     if(transferValue > 0) super._transfer(from, to, transferValue);
-  }
-}
 
-/*
-contract PurrCoin is ERC20 {
-  mapping(address => bool) private _recievers;
-  address private _purrerFactoryAddress;
-
-  modifier onlyFactory {
-    require(_msgSender() == _purrerFactoryAddress, "PurrCoin: No Access");
-    _;
+    if(IPurrerFactory(_purrerFactoryAddress).isPurrer(from)) {
+      if(balanceOf(from) == 0 && _mintAllowance[from] == 0) {
+        ILootFactory(_lootFactoryAddress).mint(from);
+      }
+    }
   }
 
-  // Should only be called once by the owner
-  function setPurrerFactoryAddress(address factory) external returns (bool) {
-    _purrerFactoryAddress = factory;
-    return true;
-  }
-
-  // Should Only be called by Purrer
-  function consumeLoot(address purrerAddress, address lootAddress) external returns (bool) {
+  function runLootLogic(address purrerAddress, address lootAddress) external returns (bool) {
     lootAddress.delegatecall(abi.encodeWithSignature("consume(address)", purrerAddress));
     return true;
   }
-} */
+}
+
+interface ILootFactory {
+  function mint(address to) external returns (bool);
+}
+
+interface IPurrerFactory {
+  function isPurrer(address account) external view returns (bool);
+}

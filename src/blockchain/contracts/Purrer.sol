@@ -7,11 +7,13 @@ import "@openzeppelin/contracts-upgradeable/token/ERC721/utils/ERC721HolderUpgra
 contract Purrer is OwnableUpgradeable, ERC721HolderUpgradeable {
   address private _purrCoinAddress;
   address private _purrNFTAddress;
+  address private _lootFactoryAddress;
 
-  function init(address purrCoinAddress, address purrNFTAddress) external initializer returns (bool) {
+  function init(address purrCoinAddress, address purrNFTAddress, address lootFactoryAddress) external initializer returns (bool) {
     OwnableUpgradeable.__Ownable_init();
     _purrCoinAddress = purrCoinAddress;
     _purrNFTAddress = purrNFTAddress;
+    _lootFactoryAddress = lootFactoryAddress;
     return true;
   }
 
@@ -25,10 +27,17 @@ contract Purrer is OwnableUpgradeable, ERC721HolderUpgradeable {
     IPurrNFT(_purrNFTAddress).redeem(tokenId);
     return true;
   }
+
+  function consumeLoot(uint256 tokenId) external {
+    address lootAddress = ILootFactory(_lootFactoryAddress).addressOf();
+    IPurrCoin(_purrCoinAddress).runLootLogic(address(this), lootAddress);
+    ILootFactory(_lootFactoryAddress).burn(0);
+  }
 }
 
 interface IPurrCoin {
   function approve(address spender, uint256 amount) external returns (bool);
+  function runLootLogic(address purrerAddress, address lootAddress) external;
 }
 
 interface IPurrNFT {
@@ -36,33 +45,7 @@ interface IPurrNFT {
   function redeem(uint256 tokenId) external;
 }
 
-/*
-contract Purrer is OwnableUpgradeable, ERC721HolderUpgradeable {
-  address private _lootFactoryAddress;
-
-  function init(address purrCoinAddress, address purrNFTAddress, address lootFactoryAddress) external initializer {
-    _lootFactoryAddress = lootFactoryAddress;
-  }
-
-  function consumeLoot(uint256 tokenId) external returns (bool) {
-    address lootAddress = ILootFactory(_lootFactoryAddress).addressOf(tokenId);
-    IPurrCoin(_purrCoinAddress).consumeLoot(address(this), lootAddress);
-    ILootFactory(_lootFactoryAddress).burn(tokenId);
-    return true;
-  }
-}
-
-interface IPurrNFT {
-  function mint(address to, string memory message, uint256 value) external;
-  function redeem(uint256 tokenId) external returns (bool);
-}
-
-interface IPurrCoin {
-  function approve(address spender, uint256 amount) external returns (bool);
-  function consumeLoot(address purrerAddress, address lootAddress) external returns (bool);
-}
-
 interface ILootFactory {
-  function addressOf(uint256 tokenId) external view returns (address);
+  function addressOf() external view returns (address);
   function burn(uint256 tokenId) external returns (bool);
-} */
+}

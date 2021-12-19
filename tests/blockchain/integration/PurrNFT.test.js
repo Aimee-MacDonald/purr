@@ -6,11 +6,21 @@ describe('PurrNFT', () => {
   beforeEach(async () => {
     signers = await ethers.getSigners()
 
+    const Loot = await ethers.getContractFactory('Loot')
+    const LootFactory = await ethers.getContractFactory('LootFactory')
     const PurrCoin = await ethers.getContractFactory('PurrCoin')
-    purrCoin = await PurrCoin.deploy()
-
     const PurrNFT = await ethers.getContractFactory('PurrNFT')
+    const PurrerImplementation = await ethers.getContractFactory('Purrer')
+    const PurrerFactory = await ethers.getContractFactory('PurrerFactory')
+    
+    const loot = await Loot.deploy()
+    const lootFactory = await LootFactory.deploy(loot.address)
+    purrCoin = await PurrCoin.deploy(lootFactory.address)
     purrNFT = await PurrNFT.deploy(purrCoin.address)
+    const purrerImplementation = await PurrerImplementation.deploy()
+    const purrerFactory = await PurrerFactory.deploy(purrerImplementation.address, purrCoin.address, purrNFT.address, lootFactory.address)
+
+    await purrCoin.setPurrerFactory(purrerFactory.address)
 
     await purrCoin.addMinter(signers[0].address)
     await purrCoin.addMinter(signers[1].address)

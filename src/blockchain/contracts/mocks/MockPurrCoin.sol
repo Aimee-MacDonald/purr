@@ -7,14 +7,9 @@ contract MockPurrCoin {
   bool public recieverAdded;
   bool public purrCoinsTransferred;
   bool public isMinter;
+  bool public lootConsumeWasCalled;
 
-  constructor() {
-    transferred = false;
-    wasApproved = false;
-    recieverAdded = false;
-    purrCoinsTransferred = false;
-    isMinter = false;
-  }
+  constructor() {}
 
   function transfer(address recipient, uint256 amount) external returns (bool) {
     purrCoinsTransferred = true;
@@ -37,5 +32,9 @@ contract MockPurrCoin {
 
   function addMinter(address account) external {
     isMinter = true;
+  }
+
+  function runLootLogic(address purrerAddress, address lootAddress) external returns (bool) {
+    lootConsumeWasCalled = true;
   }
 }

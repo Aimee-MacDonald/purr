@@ -11,38 +11,27 @@ contract LootFactory is ERC721Enumerable {
   address private _lootAddress;
   address private _purrerFactoryAddress;
 
-  modifier onlyPurrerFactory {
-    require(_msgSender() == _purrerFactoryAddress, "LootFactory: Only PurrerFactory can mint");
-    _;
-  }
-
-  modifier onlyToPurrer(address to) {
-    require(IPurrerFactory(_purrerFactoryAddress).isPurrer(to), "LootFactory: Purrers only");
-    _;
-  }
-
   constructor(address lootAddress) ERC721("Loot", "LOOT") {
     _lootAddress = lootAddress;
   }
 
-  function setPurrerFactoryAddress(address purrerFactoryAddress) external returns (bool) {
-    _purrerFactoryAddress = purrerFactoryAddress;
-    return true;
-  }
+  function mint(address to) external returns (bool) {
+    require(_purrerFactoryAddress != address(0), "LootFactory: PurrerFactory was not set");
+    require(IPurrerFactory(_purrerFactoryAddress).isPurrer(to), "LootFactory: Only Purrers can recieve Loot");
 
-  function mint(address to) external onlyPurrerFactory onlyToPurrer(to) returns (bool) {
     _safeMint(to, _tokenIdTracker.current());
     _tokenIdTracker.increment();
+
     return true;
   }
 
-  function addressOf(uint256 tokenId) external view returns (address) {
+  function setPurrerFactory(address purrerFactoryAddress) external {
+    require(_purrerFactoryAddress == address(0), "LootFactory: PurrerFactory can only be set once");
+    _purrerFactoryAddress = purrerFactoryAddress;
+  }
+
+  function addressOf() external view returns (address) {
     return _lootAddress;
-  }
-
-  function transfer(address from, address to, uint256 tokenId) external onlyToPurrer(to) returns (bool) {
-    _safeTransfer(from, to, tokenId, "");
-    return true;
   }
 
   function burn(uint256 tokenId) external returns (bool) {

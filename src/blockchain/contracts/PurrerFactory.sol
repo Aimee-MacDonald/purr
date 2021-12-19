@@ -13,14 +13,17 @@ contract PurrerFactory is Ownable, ERC721URIStorage {
   Counters.Counter private _tokenIdTracker;
 
   mapping(address => address) private _userToPurrerAddress;
+  mapping(address => bool) private _isPurrer;
   address private _purrerImplementationAddress;
   address private _purrCoinAddress;
   address private _purrNFTAddress;
+  address private _lootFactoryAddress;
 
-  constructor(address purrerImplementationAddress, address purrCoinAddress, address purrNFTAddress) ERC721("Purrer", "PURR") {
+  constructor(address purrerImplementationAddress, address purrCoinAddress, address purrNFTAddress, address lootFactoryAddress) ERC721("Purrer", "PURR") {
     _purrerImplementationAddress = purrerImplementationAddress;
     _purrCoinAddress = purrCoinAddress;
     _purrNFTAddress = purrNFTAddress;
+    _lootFactoryAddress = lootFactoryAddress;
   }
 
   /*
@@ -39,8 +42,9 @@ contract PurrerFactory is Ownable, ERC721URIStorage {
 
     address cloneAddress = Clones.clone(_purrerImplementationAddress);
     _userToPurrerAddress[to] = cloneAddress;
+    _isPurrer[cloneAddress] = true;
 
-    IPurrer(cloneAddress).init(_purrCoinAddress, _purrNFTAddress);
+    IPurrer(cloneAddress).init(_purrCoinAddress, _purrNFTAddress, _lootFactoryAddress);
     IPurrer(cloneAddress).transferOwnership(to);
 
     IPurrCoin(_purrCoinAddress).addMinter(cloneAddress);
@@ -52,8 +56,12 @@ contract PurrerFactory is Ownable, ERC721URIStorage {
     return true;
   }
 
-  function addressOf(address account) external view returns (address) {
+  function addressOf(address account) public view returns (address) {
     return _userToPurrerAddress[account];
+  }
+
+  function isPurrer(address account) external view returns (bool) {
+    return _isPurrer[account];
   }
 }
 
@@ -62,7 +70,7 @@ interface IPurrCoin {
 }
 
 interface IPurrer {
-  function init(address purrCoinAddress, address purrNFTAddress) external returns (bool);
+  function init(address purrCoinAddress, address purrNFTAddress, address lootFactoryAddress) external returns (bool);
   function transferOwnership(address newOwner) external;
   function owner() external view returns (address);
 }

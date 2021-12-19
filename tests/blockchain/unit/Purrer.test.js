@@ -1,23 +1,27 @@
 const { expect } = require('chai')
 
 describe('Purrer', () => {
-  let mockPurrCoin, mockPurrNFT
+  let mockPurrCoin, mockPurrNFT, mockLoot, mockLootFactory
   let signers, purrer, purrer2
 
   beforeEach(async () => {
     signers = await ethers.getSigners()
 
     const PurrerImplementation = await ethers.getContractFactory('Purrer')
-    const purrerImplementation = await PurrerImplementation.deploy()
-
     const MockPurrCoin = await ethers.getContractFactory('MockPurrCoin')
-    mockPurrCoin = await MockPurrCoin.deploy()
-
     const MockPurrNFT = await ethers.getContractFactory('MockPurrNFT')
-    mockPurrNFT = await MockPurrNFT.deploy()
-
+    const MockLoot = await ethers.getContractFactory('MockLoot')
+    const MockLootFactory = await ethers.getContractFactory('MockLootFactory')
     const PurrerFactory = await ethers.getContractFactory('PurrerFactory')
-    const purrerFactory = await PurrerFactory.deploy(purrerImplementation.address, mockPurrCoin.address, mockPurrNFT.address)
+    
+    const purrerImplementation = await PurrerImplementation.deploy()
+    mockPurrCoin = await MockPurrCoin.deploy()
+    mockPurrNFT = await MockPurrNFT.deploy()
+    mockLoot = await MockLoot.deploy()
+    mockLootFactory = await MockLootFactory.deploy()
+    const purrerFactory = await PurrerFactory.deploy(purrerImplementation.address, mockPurrCoin.address, mockPurrNFT.address, mockLootFactory.address)
+
+    await mockLootFactory.setLootAddress(mockLoot.address)
 
     await purrerFactory.mint(signers[0].address)
     const purrerAddress = await purrerFactory.addressOf(signers[0].address)
@@ -30,7 +34,7 @@ describe('Purrer', () => {
 
   describe('Initialization', () => {
     it('Should be initialised in the PurrerFactor.mint and Cannot be initialised again', async () => {
-      expect(purrer.init(mockPurrCoin.address, mockPurrNFT.address)).to.be.revertedWith('Initializable: contract is already initialized')
+      expect(purrer.init(mockPurrCoin.address, mockPurrNFT.address, mockLootFactory.address)).to.be.revertedWith('Initializable: contract is already initialized')
     })
 
     it('Should be owned by the user', async () => {
@@ -70,6 +74,24 @@ describe('Purrer', () => {
       await purrer.redeemPurr(0)
 
       expect(await mockPurrNFT.wasRedeemed()).to.equal(true)
+    })
+  })
+
+  describe('Loot consumption', () => {
+    it('Should forward the call to PurrCoin', async () => {
+      expect(await mockPurrCoin.lootConsumeWasCalled()).to.equal(false)
+
+      await purrer.consumeLoot(mockLoot.address)
+
+      expect(await mockPurrCoin.lootConsumeWasCalled()).to.equal(true)
+    })
+
+    it('Should burn the token once executed', async () => {
+      expect(await mockLootFactory.burned()).to.equal(false)
+      
+      await purrer.consumeLoot(mockLoot.address)
+
+      expect(await mockLootFactory.burned()).to.equal(true)
     })
   })
 })

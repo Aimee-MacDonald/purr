@@ -7,14 +7,18 @@ describe('PurrerFactory', () => {
     signers = await ethers.getSigners()
 
     const PurrerImplementation = await ethers.getContractFactory('Purrer')
+    const Loot = await ethers.getContractFactory('Loot')
+    const LootFactory = await ethers.getContractFactory('LootFactory')
     const PurrCoin = await ethers.getContractFactory('PurrCoin')
     const PurrerFactory = await ethers.getContractFactory('PurrerFactory')
     const PurrNFT = await ethers.getContractFactory('PurrNFT')
 
     const purrerImplementation = await PurrerImplementation.deploy()
-    const purrCoin = await PurrCoin.deploy()
+    const loot = await Loot.deploy()
+    const lootFactory = await LootFactory.deploy(loot.address)
+    const purrCoin = await PurrCoin.deploy(lootFactory.address)
     const purrNFT = await PurrNFT.deploy(purrCoin.address)
-    purrerFactory = await PurrerFactory.deploy(purrerImplementation.address, purrCoin.address, purrNFT.address)
+    purrerFactory = await PurrerFactory.deploy(purrerImplementation.address, purrCoin.address, purrNFT.address, lootFactory.address)
 
     await purrerFactory.mint(signers[0].address)
     await purrerFactory.mint(signers[1].address)
