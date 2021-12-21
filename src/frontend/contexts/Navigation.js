@@ -4,6 +4,8 @@ export default ({ children }) => {
   const [ activeWorkspace, setActiveWorkspace ] = useState(0)
   const workspaceOptions = [
     'JOIN',
+    'PURRER',
+    'LOOT',
     'PURRS',
     'NETWORK'
   ]

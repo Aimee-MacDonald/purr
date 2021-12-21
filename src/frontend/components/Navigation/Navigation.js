@@ -15,6 +15,8 @@ export const Navigation = () => {
         disabled={activeWorkspace === getWorkspaceIndex('JOIN')}>X
       </button>
       
+      <button onClick={() => setActiveWorkspace(getWorkspaceIndex('PURRER'))}>Purrer</button>
+      <button onClick={() => setActiveWorkspace(getWorkspaceIndex('LOOT'))}>Loot</button>
       <button onClick={() => setActiveWorkspace(getWorkspaceIndex('PURRS'))}>Purrs</button>
       <button onClick={() => setActiveWorkspace(getWorkspaceIndex('NETWORK'))}>Network</button>
     </div>

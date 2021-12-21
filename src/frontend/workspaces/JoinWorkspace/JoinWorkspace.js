@@ -20,9 +20,9 @@ const JoinWorkspace = () => {
             setNotification('Purrer Minted')
             setActiveWorkspace(getWorkspaceIndex('PURRS'))
           })
-          .catch(error => setNotification('Something bad happened'))
+          .catch(error => setNotification(`Something bad happened: ${error}`))
       })
-      .catch(error => setNotification('Something bad happened'))
+      .catch(error => setNotification(`Something bad happened: ${error}`))
   }
 
   return (

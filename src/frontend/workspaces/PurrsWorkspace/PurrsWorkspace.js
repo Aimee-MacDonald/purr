@@ -1,3 +1,35 @@
+import React from 'react'
+
+import './PurrsWorkspace.sass'
+
+const PurrsWorkspace = () => (
+  <div id='PurrsWorkspace'>
+    <h1>Purrs Workspace</h1>
+  </div>
+)
+
+export default PurrsWorkspace
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* 
 import React, { useState, useEffect, useContext } from 'react'
 
 import './PurrsWorkspace.sass'
@@ -54,7 +86,7 @@ const PurrsWorkspace = () => {
   const mintPurrNFT = e => {
     e.preventDefault()
 
-    const nftValue = `${e.target.value.value}000000000000000000`
+    const nftValue = e.target.value.value
     const purrer = new PurrerInterface(purrerAddress)
 
     purrer.purr(e.target.address.value, e.target.message.value, nftValue)
@@ -68,9 +100,9 @@ const PurrsWorkspace = () => {
             setNotification('MicroNFT Minted')
             checkBalances()
           })
-          .catch(error => setNotification('Something bad happened'))
+          .catch(error => setNotification(`Something bad happened: ${error}`))
       })
-      .catch(error => setNotification('Something bad happened'))
+      .catch(error => setNotification(`Something bad happened: ${error}`))
   }
 
   const redeemPurrNFT = tokenID => {
@@ -84,9 +116,9 @@ const PurrsWorkspace = () => {
           setNotification('Purr Redeemed')
           refreshPurrer()
         })
-        .catch(error => setNotification('Something bad happened'))
+        .catch(error => setNotification(`Something bad happened: ${error}`))
       })
-      .catch(error => setNotification('Something bad happened'))
+      .catch(error => setNotification(`Something bad happened: ${error}`))
   }
 
   return (
@@ -142,3 +174,4 @@ const PurrsWorkspace = () => {
 }
 
 export default PurrsWorkspace
+ */

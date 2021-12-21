@@ -1,41 +1,29 @@
 import PurrerFactory from '../artifacts/src/blockchain/contracts/PurrerFactory.sol/PurrerFactory.json'
-
 import BaseInterface from './BaseInterface'
 
 export default class PurrerFactoryInterface extends BaseInterface {
   constructor() {
-    super('0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9', PurrerFactory.abi)
+    super('0x5FC8d32690cc91D4c39d9d3abcBD16989F875707', PurrerFactory.abi)
   }
 
   async isPurrer() {
     if(super.ethCheck) {
       const contract = await super.getContract()
-
-      try {
-        const balance = await contract.balanceOf(super.getSignerAddress())
-        return balance > 0
-      } catch(error) {
-        throw(error)
-      }
+      return contract.balanceOf(super.getSignerAddress())
     }
   }
 
   async join() {
     if(super.ethCheck) {
       const contract = await super.getContract(true)
-      return contract.join()
+      return contract.mint(super.getSignerAddress())
     }
   }
 
   async purrerAddress() {
     if(super.ethCheck) {
       const contract = await super.getContract(true)
-
-      try {
-        return contract.purrerAddress(super.getSignerAddress())
-      } catch(error) {
-        throw(error)
-      }
+      return contract.addressOf(super.getSignerAddress())
     }
   }
 
