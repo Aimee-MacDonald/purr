@@ -20,4 +20,11 @@ export default class PurrerInterface extends BaseInterface {
       return contract.redeemPurr(tokenId)
     }
   }
+
+  consumeLoot() {
+    if(super.ethCheck) {
+      super.getContract(true)
+        .then(contract => contract.consumeLoot(0))
+    }
+  }
 }

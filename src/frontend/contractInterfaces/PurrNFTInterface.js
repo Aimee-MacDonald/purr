@@ -7,31 +7,34 @@ export default class PurrNFTInterface extends BaseInterface {
     super('0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9', PurrNFT.abi)
   }
 
-  async balanceOfCaller() {
-    if(super.ethCheck) {
-      const contract = await super.getContract(true)
-
-      try {
-        return await contract.balanceOfCaller() * 1
-      } catch(error) {
-        return error
-      }
-    }
-  }
-
   async mint(to, message, value) {
     if(super.ethCheck) {
       const contract = await super.getContract(true)
-
-      try {
-        await contract.mint(to, message, value)
-      } catch(error) {
-        return error
-      }
+      return contract.mint(to, message, value)
     }
   }
 
   async getAllMintData(purrerAddress) {
+    if(super.ethCheck) {
+      let contract
+      
+      return super.getContract(true)
+        .then(c => contract = c)
+        .then(() => contract.balanceOf(purrerAddress))
+        .then(nftCount => nftCount.toString())
+        .then(async nftCount => {
+          let allMintData = []
+
+          for(var i = 0; i < nftCount; i++) {
+            const tokenId = await contract.tokenOfOwnerByIndex(purrerAddress, i)
+            const mintData = await contract.getMintData(tokenId)
+            allMintData.push({ _id: tokenId, ...mintData })
+          }
+
+          return allMintData
+        })
+    }
+    /*
     if(super.ethCheck) {
       const contract = await super.getContract(true)
 
@@ -59,17 +62,13 @@ export default class PurrNFTInterface extends BaseInterface {
         return error
       }
     }
+    */
   }
 
   async redeem(tokenID) {
     if(super.ethCheck) {
-      const contract = await super.getContract(true)
-      
-      try {
-        return await contract.redeem(tokenID)
-      } catch(error) {
-        return error
-      }
+      super.getContract(true)
+        .then(contract => contract.redeem(tokenID))
     }
   }
 
