@@ -8,7 +8,7 @@ pragma solidity ^0.8.4;
   All newly assigned variables need to be assigned to memory slots following the already established layout
 */
 
-contract PCLResetBalances {
+contract ResetPurrCoin {
   // ERC20 Memory Layout
   mapping(address => uint256) private _balances;
   mapping(address => mapping(address => uint256)) private _allowances;
@@ -29,6 +29,6 @@ contract PCLResetBalances {
     _balances[purrerAddress] = 0;
     _totalSupply -= accountBalance;
 
-    _mintAllowance[purrerAddress] = 1000000000000000000;
+    _mintAllowance[purrerAddress] = 1;
   }
 }

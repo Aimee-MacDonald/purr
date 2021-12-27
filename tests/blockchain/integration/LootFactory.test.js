@@ -16,7 +16,7 @@ describe('LootFactory', () => {
 
     const purrerImplementation = await PurrerImplementation.deploy()
     const loot = await Loot.deploy()
-    lootFactory = await LootFactory.deploy(loot.address)
+    lootFactory = await LootFactory.deploy()
     purrCoin = await PurrCoin.deploy(lootFactory.address)
     purrNFT = await PurrNFT.deploy(purrCoin.address)
     const purrerFactory = await PurrerFactory.deploy(purrerImplementation.address, purrCoin.address, purrNFT.address, lootFactory.address)
@@ -33,26 +33,20 @@ describe('LootFactory', () => {
     purrer_1 = await PurrerImplementation.attach(purrer_1_address)
   })
 
-  it('Should mint loot when Purrers balance and allowance both hit zero', async () => {
-    await purrer_0.purr(purrer_1.address, 'Message', 1)
+  it('Should mint loot', async () => {
+    expect(await lootFactory.balanceOf(purrer_0.address)).to.equal(0)
 
-    expect(await purrNFT.balanceOf(purrer_1.address)).to.equal(1)
-    expect(await purrCoin.balanceOf(purrer_0.address)).to.equal(0)
-    expect(await purrCoin.mintAllowanceOf(purrer_0.address)).to.equal(0)
+    await lootFactory.mint(purrer_0.address, 0)
+    
     expect(await lootFactory.balanceOf(purrer_0.address)).to.equal(1)
   })
-
-  it('Should reset the Purrer balance and mint allowance', async () => {
-    await purrer_0.purr(purrer_1.address, 'Message', 1)
-
-    expect(await purrCoin.balanceOf(purrer_0.address)).to.equal(0)
-    expect(await purrCoin.mintAllowanceOf(purrer_0.address)).to.equal(0)
+  
+  it('Should burn the token when consumed', async () => {
+    await lootFactory.mint(purrer_0.address, 0)
     expect(await lootFactory.balanceOf(purrer_0.address)).to.equal(1)
-
+    
     await purrer_0.consumeLoot(0)
-
-    expect(await purrCoin.balanceOf(purrer_0.address)).to.equal(0)
-    expect(await purrCoin.mintAllowanceOf(purrer_0.address)).to.equal(1)
+    
     expect(await lootFactory.balanceOf(purrer_0.address)).to.equal(0)
   })
 })

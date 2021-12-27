@@ -14,7 +14,7 @@ describe('PurrNFT', () => {
     const PurrerFactory = await ethers.getContractFactory('PurrerFactory')
     
     const loot = await Loot.deploy()
-    const lootFactory = await LootFactory.deploy(loot.address)
+    const lootFactory = await LootFactory.deploy()
     purrCoin = await PurrCoin.deploy(lootFactory.address)
     purrNFT = await PurrNFT.deploy(purrCoin.address)
     const purrerImplementation = await PurrerImplementation.deploy()

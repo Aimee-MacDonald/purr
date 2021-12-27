@@ -45,7 +45,7 @@ contract PurrCoin is ERC20 {
 
     if(IPurrerFactory(_purrerFactoryAddress).isPurrer(from)) {
       if(balanceOf(from) == 0 && _mintAllowance[from] == 0) {
-        ILootFactory(_lootFactoryAddress).mint(from);
+        ILootFactory(_lootFactoryAddress).mint(from, 0);
       }
     }
   }
@@ -57,7 +57,7 @@ contract PurrCoin is ERC20 {
 }
 
 interface ILootFactory {
-  function mint(address to) external returns (bool);
+  function mint(address to, uint256 implementationId) external returns (bool);
 }
 
 interface IPurrerFactory {

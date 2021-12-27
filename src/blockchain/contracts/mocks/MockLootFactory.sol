@@ -6,7 +6,7 @@ contract MockLootFactory {
   bool public burned;
   address public lootAddress;
 
-  function mint(address to) external returns (bool) {
+  function mint(address to, uint256 implementationId) external returns (bool) {
     minted = true;
     return true;
   }
@@ -20,7 +20,7 @@ contract MockLootFactory {
     lootAddress = loot;
   }
 
-  function addressOf() external view returns (address) {
+  function addressOf(uint256 tokenId) external view returns (address) {
     require(lootAddress != address(0), "lootAddress not set");
     return lootAddress;
   }
