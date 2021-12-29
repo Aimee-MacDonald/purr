@@ -1,4 +1,5 @@
 const { expect } = require('chai')
+const { async } = require('regenerator-runtime')
 
 describe('PurrCoin', () => {
   let signers, purrCoin
@@ -119,17 +120,54 @@ describe('PurrCoin', () => {
 
       expect(purrCoin.transfer(signers[1].address, 2)).to.be.revertedWith('ERC20: transfer amount exceeds balance')
     })
+
+    it('Should track the total PurrCoin recieved', async () => {
+      await purrCoin.addMinter(signers[0].address)
+      await purrCoin.addMinter(signers[1].address)
+
+      expect(await purrCoin.totalRecievedBy(signers[0].address)).to.equal(0)
+      
+      await purrCoin.connect(signers[1]).transfer(signers[0].address, 1)
+      
+      expect(await purrCoin.totalRecievedBy(signers[0].address)).to.equal(1)
+    })
+
+    it("Should return the Purrer's maxMintAllowance", async () => {
+      await purrCoin.addMinter(signers[0].address)
+
+      expect(await purrCoin.maxMintAllowanceOf(signers[0].address)).to.equal(1)
+    })
   })
   
   describe('Loot', () => {
-    it('When Balance and Mint allowance both hit zero, should mint loot', async () => {
+    it('When Balance and Mint allowance both hit zero, should mint loot_0', async () => {
       await purrCoin.addMinter(signers[0].address)
       await purrCoin.addMinter(signers[1].address)
       await mockPurrerFactory.setPurrer(signers[0].address)
       await purrCoin.transfer(signers[1].address, 1)
-  
+      
       expect(await purrCoin.balanceOf(signers[0].address)).to.equal('0')
       expect(await purrCoin.mintAllowanceOf(signers[0].address)).to.equal('0')
+      expect(await mockLootFactory.minted()).to.equal(true)
+    })
+    
+    it('When totalRecievedBy hits 5, should mint loot_1', async () => {
+      await mockPurrerFactory.setPurrer(signers[0].address)
+      
+      await purrCoin.addMinter(signers[0].address)
+      await purrCoin.addMinter(signers[1].address)
+      await purrCoin.addMinter(signers[2].address)
+      await purrCoin.addMinter(signers[3].address)
+      await purrCoin.addMinter(signers[4].address)
+      await purrCoin.addMinter(signers[5].address)
+
+      await purrCoin.connect(signers[1]).transfer(signers[0].address, 1)
+      await purrCoin.connect(signers[2]).transfer(signers[0].address, 1)
+      await purrCoin.connect(signers[3]).transfer(signers[0].address, 1)
+      await purrCoin.connect(signers[4]).transfer(signers[0].address, 1)
+      await purrCoin.connect(signers[5]).transfer(signers[0].address, 1)
+
+      expect(await purrCoin.totalRecievedBy(signers[0].address)).to.equal(5)
       expect(await mockLootFactory.minted()).to.equal(true)
     })
   

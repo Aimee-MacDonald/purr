@@ -8,7 +8,7 @@ pragma solidity ^0.8.4;
   All newly assigned variables need to be assigned to memory slots following the already established layout
 */
 
-contract ResetPurrCoin {
+contract IncreaseMintAllowance {
   // ERC20 Memory Layout
   mapping(address => uint256) private _balances;
   mapping(address => mapping(address => uint256)) private _allowances;
@@ -26,12 +26,6 @@ contract ResetPurrCoin {
 
   function consume(address purrerAddress) external {
     require(purrerAddress != address(0), "ERC20: burn from the zero address");
-    
-    uint256 accountBalance = _balances[purrerAddress];
-    
-    _balances[purrerAddress] = 0;
-    _totalSupply -= accountBalance;
-
-    _mintAllowance[purrerAddress] = 1;
+    _maxMintAllowance[purrerAddress] = 5;
   }
 }

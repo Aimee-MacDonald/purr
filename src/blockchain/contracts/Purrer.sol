@@ -31,7 +31,7 @@ contract Purrer is OwnableUpgradeable, ERC721HolderUpgradeable {
   function consumeLoot(uint256 tokenId) external {
     address lootAddress = ILootFactory(_lootFactoryAddress).addressOf(tokenId);
     IPurrCoin(_purrCoinAddress).runLootLogic(address(this), lootAddress);
-    ILootFactory(_lootFactoryAddress).burn(0);
+    ILootFactory(_lootFactoryAddress).burn(tokenId);
   }
 }
 
