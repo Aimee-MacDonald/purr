@@ -4,7 +4,7 @@ import BaseInterface from './BaseInterface'
 
 export default class PurrNFTInterface extends BaseInterface {
   constructor() {
-    super('0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9', PurrNFT.abi)
+    super('0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9', PurrNFT.abi)
   }
 
   async mint(to, message, value) {

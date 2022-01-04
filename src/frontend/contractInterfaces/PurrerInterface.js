@@ -21,10 +21,10 @@ export default class PurrerInterface extends BaseInterface {
     }
   }
 
-  consumeLoot() {
+  consumeLoot(lootId) {
     if(super.ethCheck) {
-      super.getContract(true)
-        .then(contract => contract.consumeLoot(0))
+      return super.getContract(true)
+        .then(contract => contract.consumeLoot(lootId))
     }
   }
 }

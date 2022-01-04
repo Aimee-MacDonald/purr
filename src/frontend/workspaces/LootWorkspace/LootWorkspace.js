@@ -1,43 +1,42 @@
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useEffect } from 'react'
 
 import './LootWorkspace.sass'
 
-import PurrerFactoryInterface from '../../contractInterfaces/PurrerFactoryInterface'
 import LootFactoryInterface from '../../contractInterfaces/LootFactoryInterface'
+import PurrerFactoryInterface from '../../contractInterfaces/PurrerFactoryInterface'
 import PurrerInterface from '../../contractInterfaces/PurrerInterface'
 
-import { ModalContext } from '../../contexts/Modal'
-
 const LootWorkspace = () => {
-  const purrerFactory = new PurrerFactoryInterface()
-  const lootFactory = new LootFactoryInterface()
-  const { setNotification } = useContext(ModalContext)
-
   const [ lootTokens, setLootTokens ] = useState([])
 
-  useEffect(() => checkBalance(), [])
+  useEffect(() => getLootList(), [])
 
-  const checkBalance = () => {
+  const getLootList = () => {
+    const lootFactory = new LootFactoryInterface()
+    const purrerFactory = new PurrerFactoryInterface()
+
     purrerFactory.purrerAddress()
-      .then(purrerAddress => lootFactory.getAllLootData(purrerAddress))
-      .then(lootTokens => setLootTokens(lootTokens))
-      .catch(error => setNotification(`Loot Error: ${error}`))
+      .then(purrerAddress => lootFactory.lootList(purrerAddress))
+      .then(lootList => setLootTokens(lootList))
+      .catch(error => console.log(error))
   }
-  
-  const consume = lootId => {
-    purrerFactory.purrerAddress()
+
+  const consumeLoot = lootId => {
+    const purrerFactory = new PurrerFactoryInterface()
+
+    return purrerFactory.purrerAddress()
       .then(purrerAddress => new PurrerInterface(purrerAddress))
-      .then(purrer => purrer.consumeLoot())
-      .then(success => setNotification(`success`))
-      .catch(error => setNotification(`Loot Error: ${error}`))
+      .then(purrer => purrer.consumeLoot(lootId))
   }
 
   return (
     <div id='LootWorkspace'>
-      {lootTokens.map(loot => (
-        <div key={loot.tokenId}>
-          <p>{loot.lootAddress}</p>
-          <button onClick={() => consume(loot.tokenId)}>Consume</button>
+      {lootTokens.map(lootToken => (
+        <div key={`LT${lootToken.id}`}>
+          <h3>{lootToken.name}</h3>
+          <p>{lootToken.implementation}</p>
+          <p>{lootToken.id.toString()}</p>
+          <button onClick={() => consumeLoot(lootToken.id)}>Consume</button>
         </div>
       ))}
     </div>

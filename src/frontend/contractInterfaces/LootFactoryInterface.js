@@ -3,28 +3,30 @@ import LootFactory from '../artifacts/src/blockchain/contracts/LootFactory.sol/L
 
 export default class LootFactoryInterface extends BaseInterface {
   constructor() {
-    super('0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0', LootFactory.abi)
+    super('0x5FbDB2315678afecb367f032d93F642f64180aa3', LootFactory.abi)
   }
 
-  getAllLootData(purrerAddress) {
+  lootList(purrerAddress) {
     if(super.ethCheck) {
       let contract
 
       return super.getContract()
         .then(c => contract = c)
         .then(() => contract.balanceOf(purrerAddress))
-        .then(nftCount => nftCount.toString())
-        .then(async nftCount => {
-          let allLootData = []
+        .then(async lootCount => {
+          let lootListData = []
 
-          for(var i = 0; i < nftCount; i++) {
+          for(let i = 0; i < lootCount; i++) {
             const tokenId = await contract.tokenOfOwnerByIndex(purrerAddress, i)
-            const lootAddress = await contract.addressOf()
-
-            allLootData.push({tokenId, lootAddress})
+            const lootDetails = await contract.detailsOf(tokenId)
+            lootListData.push({
+              id: tokenId,
+              name: lootDetails.name,
+              implementation: lootDetails.implementation
+            })
           }
 
-          return allLootData
+          return lootListData
         })
     }
   }
