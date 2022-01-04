@@ -76,7 +76,7 @@ describe('IncreaseMintAllowance', () => {
   })
   
   describe('Consumption', () => {
-    it('Should increase maxAllowanceOf to 5', async () => {
+    it('Should set maxMintAllowance to 5', async () => {
       await purrer_1.connect(signers[1]).purr(purrer_0.address, 'Message', 1)
       await purrer_2.connect(signers[2]).purr(purrer_0.address, 'Message', 1)
       await purrer_3.connect(signers[3]).purr(purrer_0.address, 'Message', 1)
@@ -95,6 +95,7 @@ describe('IncreaseMintAllowance', () => {
       await purrer_0.consumeLoot(5)
 
       expect(await purrCoin.maxMintAllowanceOf(purrer_0.address)).to.equal(5)
+      expect(await purrCoin.mintAllowanceOf(purrer_0.address)).to.equal(5)
       expect(await lootFactory.balanceOf(purrer_0.address)).to.equal(0)
     })
   })

@@ -27,5 +27,6 @@ contract IncreaseMintAllowance {
   function consume(address purrerAddress) external {
     require(purrerAddress != address(0), "ERC20: burn from the zero address");
     _maxMintAllowance[purrerAddress] = 5;
+    _mintAllowance[purrerAddress] = 5;
   }
 }
