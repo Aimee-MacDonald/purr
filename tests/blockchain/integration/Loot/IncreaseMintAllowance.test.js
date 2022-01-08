@@ -11,6 +11,7 @@ describe('IncreaseMintAllowance', () => {
     const LootFactory = await ethers.getContractFactory('LootFactory')
     const PurrerImplementation = await ethers.getContractFactory('Purrer')
     const PurrNFT = await ethers.getContractFactory('PurrNFT')
+    const Market = await ethers.getContractFactory('Market')
     const PurrerFactory = await ethers.getContractFactory('PurrerFactory')
     const ResetPurrCoin = await ethers.getContractFactory('ResetPurrCoin')
     const IncreaseMintAllowance = await ethers.getContractFactory('IncreaseMintAllowance')
@@ -19,7 +20,8 @@ describe('IncreaseMintAllowance', () => {
     purrCoin = await PurrCoin.deploy(lootFactory.address)
     const purrerImplementation = await PurrerImplementation.deploy()
     const purrNFT = await PurrNFT.deploy(purrCoin.address)
-    const purrerFactory = await PurrerFactory.deploy(purrerImplementation.address, purrCoin.address, purrNFT.address, lootFactory.address)
+    const market = await Market.deploy(lootFactory.address)
+    const purrerFactory = await PurrerFactory.deploy(purrerImplementation.address, purrCoin.address, purrNFT.address, lootFactory.address, market.address)
     const resetPurrCoin = await ResetPurrCoin.deploy()
     const increaseMintAllowance = await IncreaseMintAllowance.deploy()
 

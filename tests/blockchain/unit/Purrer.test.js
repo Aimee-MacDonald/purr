@@ -1,7 +1,7 @@
 const { expect } = require('chai')
 
 describe('Purrer', () => {
-  let mockPurrCoin, mockPurrNFT, mockLoot, mockLootFactory
+  let mockPurrCoin, mockPurrNFT, mockLoot, mockLootFactory, mockMarket
   let signers, purrer, purrer2
 
   beforeEach(async () => {
@@ -13,13 +13,15 @@ describe('Purrer', () => {
     const MockLoot = await ethers.getContractFactory('MockLoot')
     const MockLootFactory = await ethers.getContractFactory('MockLootFactory')
     const PurrerFactory = await ethers.getContractFactory('PurrerFactory')
+    const MockMarket = await ethers.getContractFactory('MockMarket')
     
     const purrerImplementation = await PurrerImplementation.deploy()
     mockPurrCoin = await MockPurrCoin.deploy()
     mockPurrNFT = await MockPurrNFT.deploy()
     mockLoot = await MockLoot.deploy()
     mockLootFactory = await MockLootFactory.deploy()
-    const purrerFactory = await PurrerFactory.deploy(purrerImplementation.address, mockPurrCoin.address, mockPurrNFT.address, mockLootFactory.address)
+    mockMarket = await MockMarket.deploy()
+    const purrerFactory = await PurrerFactory.deploy(purrerImplementation.address, mockPurrCoin.address, mockPurrNFT.address, mockLootFactory.address, mockMarket.address)
 
     await mockLootFactory.setLootAddress(mockLoot.address)
 
@@ -34,7 +36,7 @@ describe('Purrer', () => {
 
   describe('Initialization', () => {
     it('Should be initialised in the PurrerFactor.mint and Cannot be initialised again', async () => {
-      expect(purrer.init(mockPurrCoin.address, mockPurrNFT.address, mockLootFactory.address)).to.be.revertedWith('Initializable: contract is already initialized')
+      expect(purrer.init(mockPurrCoin.address, mockPurrNFT.address, mockLootFactory.address, mockMarket.address)).to.be.revertedWith('Initializable: contract is already initialized')
     })
 
     it('Should be owned by the user', async () => {
@@ -93,5 +95,23 @@ describe('Purrer', () => {
 
       expect(await mockLootFactory.burned()).to.equal(true)
     })
+  })
+
+  describe('Market', () => {
+    it('Should list a Loot item on the Market', async () => {
+      expect(await mockMarket.wasListed()).to.equal(false)
+      
+      await purrer.listLootOnMarket(0)
+
+      expect(await mockMarket.wasListed()).to.equal(true)
+    })
+  })
+
+  it('Should buy an item from the market', async () => {
+    expect(await mockMarket.wasBought()).to.equal(false)
+    
+    await purrer.buyLoot(0)
+    
+    expect(await mockMarket.wasBought()).to.equal(true)
   })
 })

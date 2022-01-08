@@ -14,7 +14,7 @@ contract MockPurrer is ERC721Holder {
     wasTransferred = false;
   }
 
-  function init(address purrCoinAddress, address purrNFTAddress, address lootFactoryAddress) external returns (bool) {
+  function init(address purrCoinAddress, address purrNFTAddress, address lootFactoryAddress, address marketAddress) external returns (bool) {
     initialised = true;
     return true;
   }
@@ -22,5 +22,9 @@ contract MockPurrer is ERC721Holder {
   function transferOwnership(address newOwner) public {
     wasTransferred = true;
     wasTransferredToAddress = newOwner;
+  }
+
+  function listLoot() external returns (bool) {
+    return true;
   }
 }

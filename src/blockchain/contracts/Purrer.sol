@@ -8,12 +8,14 @@ contract Purrer is OwnableUpgradeable, ERC721HolderUpgradeable {
   address private _purrCoinAddress;
   address private _purrNFTAddress;
   address private _lootFactoryAddress;
+  address private _marketAddress;
 
-  function init(address purrCoinAddress, address purrNFTAddress, address lootFactoryAddress) external initializer returns (bool) {
+  function init(address purrCoinAddress, address purrNFTAddress, address lootFactoryAddress, address marketAddress) external initializer returns (bool) {
     OwnableUpgradeable.__Ownable_init();
     _purrCoinAddress = purrCoinAddress;
     _purrNFTAddress = purrNFTAddress;
     _lootFactoryAddress = lootFactoryAddress;
+    _marketAddress = marketAddress;
     return true;
   }
 
@@ -33,6 +35,20 @@ contract Purrer is OwnableUpgradeable, ERC721HolderUpgradeable {
     IPurrCoin(_purrCoinAddress).runLootLogic(address(this), lootAddress);
     ILootFactory(_lootFactoryAddress).burn(tokenId);
   }
+
+  function listLootOnMarket(uint256 lootId) external returns (bool) {
+    require(_marketAddress != address(0), "Purrer: Market Address not set");
+    ILootFactory(_lootFactoryAddress).approve(_marketAddress, lootId);
+    IMarket(_marketAddress).listLoot(lootId);
+    return true;
+  }
+
+  function buyLoot(uint256 lootId) external returns (bool) {
+    require(_marketAddress != address(0), "Purrer: Market Address not set");
+    IMarket(_marketAddress).buyLoot(lootId);
+
+    return true;
+  }
 }
 
 interface IPurrCoin {
@@ -48,4 +64,10 @@ interface IPurrNFT {
 interface ILootFactory {
   function addressOf(uint256 tokenId) external view returns (address);
   function burn(uint256 tokenId) external returns (bool);
+  function approve(address to, uint256 tokenId) external;
+}
+
+interface IMarket {
+  function listLoot(uint256 lootId) external returns (bool);
+  function buyLoot(uint256 lootId) external returns (bool);
 }
