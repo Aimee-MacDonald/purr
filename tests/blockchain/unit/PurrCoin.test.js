@@ -3,7 +3,7 @@ const { async } = require('regenerator-runtime')
 
 describe('PurrCoin', () => {
   let signers, purrCoin
-  let mockPurrer, mockLootFactory, mockPurrerFactory, mockLoot
+  let mockPurrer, mockLootFactory, mockPurrerFactory, mockLoot, mockMarket
 
   beforeEach(async () => {
     signers = await ethers.getSigners()
@@ -13,14 +13,18 @@ describe('PurrCoin', () => {
     const MockLootFactory = await ethers.getContractFactory('MockLootFactory')
     const PurrCoin = await ethers.getContractFactory('PurrCoin')
     const MockLoot = await ethers.getContractFactory('MockLoot')
+    const MockMarket = await ethers.getContractFactory('MockMarket')
     
     mockPurrerFactory = await MockPurrerFactory.deploy()
     mockPurrer = await MockPurrer.deploy()
     mockLootFactory = await MockLootFactory.deploy()
-    purrCoin = await PurrCoin.deploy(mockLootFactory.address)
     mockLoot = await MockLoot.deploy()
+    mockMarket = await MockMarket.deploy()
+    purrCoin = await PurrCoin.deploy(mockLootFactory.address)
 
     await purrCoin.setPurrerFactory(mockPurrerFactory.address)
+    await purrCoin.setMarket(mockMarket.address)
+    await mockMarket.setPurrCoinAddress(purrCoin.address)
   })
 
   describe('Permissions', () => {
@@ -31,16 +35,6 @@ describe('PurrCoin', () => {
     it('Should add a new reciever', async () => {
       await purrCoin.addReciever(signers[0].address)
     })
-    
-    /* 
-    it('Only PurrerFactory can add new minters', () => {
-      expect(purrCoin.addMinter(signers[0].address)).to.be.revertedWith('PurrCoin: No Access')
-    })
-    
-    it('Only PurrerFactory can add recievers', () => {
-      expect(purrCoin.addReciever(signers[0].address)).to.be.revertedWith('PurrCoin: No Access')
-    })
-     */
   })
 
   describe('Ititial Balances', () => {
@@ -136,6 +130,18 @@ describe('PurrCoin', () => {
       await purrCoin.addMinter(signers[0].address)
 
       expect(await purrCoin.maxMintAllowanceOf(signers[0].address)).to.equal(1)
+    })
+
+    it('Should not mint if sender is Market', async () => {
+      await purrCoin.addMinter(signers[0].address)
+      await purrCoin.addMinter(signers[1].address)
+
+      expect(await purrCoin.mintAllowanceOf(signers[0].address)).to.equal(1)
+      
+      await purrCoin.approve(mockMarket.address, 1)
+      expect(mockMarket.transferPurrCoin(signers[0].address, signers[1].address, 1)).to.be.revertedWith('ERC20: transfer amount exceeds balance')
+      
+      expect(await purrCoin.mintAllowanceOf(signers[0].address)).to.equal(1)
     })
   })
   

@@ -20,12 +20,13 @@ describe('IncreaseMintAllowance', () => {
     purrCoin = await PurrCoin.deploy(lootFactory.address)
     const purrerImplementation = await PurrerImplementation.deploy()
     const purrNFT = await PurrNFT.deploy(purrCoin.address)
-    const market = await Market.deploy(lootFactory.address)
+    const market = await Market.deploy(lootFactory.address, purrCoin.address)
     const purrerFactory = await PurrerFactory.deploy(purrerImplementation.address, purrCoin.address, purrNFT.address, lootFactory.address, market.address)
     const resetPurrCoin = await ResetPurrCoin.deploy()
     const increaseMintAllowance = await IncreaseMintAllowance.deploy()
 
     await purrCoin.setPurrerFactory(purrerFactory.address)
+    await purrCoin.setMarket(market.address)
     await lootFactory.setPurrerFactory(purrerFactory.address)
 
     await lootFactory.addLootType('RESET_PURRCOIN', resetPurrCoin.address)

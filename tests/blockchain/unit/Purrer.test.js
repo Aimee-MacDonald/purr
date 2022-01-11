@@ -101,7 +101,7 @@ describe('Purrer', () => {
     it('Should list a Loot item on the Market', async () => {
       expect(await mockMarket.wasListed()).to.equal(false)
       
-      await purrer.listLootOnMarket(0)
+      await purrer.listLootOnMarket(0, 1)
 
       expect(await mockMarket.wasListed()).to.equal(true)
     })
@@ -110,7 +110,7 @@ describe('Purrer', () => {
   it('Should buy an item from the market', async () => {
     expect(await mockMarket.wasBought()).to.equal(false)
     
-    await purrer.buyLoot(0)
+    await purrer.buyLoot(0, 1)
     
     expect(await mockMarket.wasBought()).to.equal(true)
   })

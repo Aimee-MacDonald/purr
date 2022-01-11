@@ -19,7 +19,7 @@ describe('PurrerFactory', () => {
     const lootFactory = await LootFactory.deploy()
     const purrCoin = await PurrCoin.deploy(lootFactory.address)
     const purrNFT = await PurrNFT.deploy(purrCoin.address)
-    const market = await Market.deploy(lootFactory.address)
+    const market = await Market.deploy(lootFactory.address, purrCoin.address)
     purrerFactory = await PurrerFactory.deploy(purrerImplementation.address, purrCoin.address, purrNFT.address, lootFactory.address, market.address)
 
     await purrerFactory.mint(signers[0].address)

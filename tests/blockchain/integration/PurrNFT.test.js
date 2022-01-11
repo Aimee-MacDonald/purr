@@ -19,10 +19,11 @@ describe('PurrNFT', () => {
     purrCoin = await PurrCoin.deploy(lootFactory.address)
     purrNFT = await PurrNFT.deploy(purrCoin.address)
     const purrerImplementation = await PurrerImplementation.deploy()
-    const market = await Market.deploy(lootFactory.address)
+    const market = await Market.deploy(lootFactory.address, purrCoin.address)
     const purrerFactory = await PurrerFactory.deploy(purrerImplementation.address, purrCoin.address, purrNFT.address, lootFactory.address, market.address)
 
     await purrCoin.setPurrerFactory(purrerFactory.address)
+    await purrCoin.setMarket(market.address)
 
     await purrCoin.addMinter(signers[0].address)
     await purrCoin.addMinter(signers[1].address)

@@ -36,15 +36,16 @@ contract Purrer is OwnableUpgradeable, ERC721HolderUpgradeable {
     ILootFactory(_lootFactoryAddress).burn(tokenId);
   }
 
-  function listLootOnMarket(uint256 lootId) external returns (bool) {
+  function listLootOnMarket(uint256 lootId, uint256 lootPrice) external returns (bool) {
     require(_marketAddress != address(0), "Purrer: Market Address not set");
     ILootFactory(_lootFactoryAddress).approve(_marketAddress, lootId);
-    IMarket(_marketAddress).listLoot(lootId);
+    IMarket(_marketAddress).listLoot(lootId, lootPrice);
     return true;
   }
 
-  function buyLoot(uint256 lootId) external returns (bool) {
+  function buyLoot(uint256 lootId, uint256 lootPrice) external returns (bool) {
     require(_marketAddress != address(0), "Purrer: Market Address not set");
+    IPurrCoin(_purrCoinAddress).approve(_marketAddress, lootPrice);
     IMarket(_marketAddress).buyLoot(lootId);
 
     return true;
@@ -68,6 +69,6 @@ interface ILootFactory {
 }
 
 interface IMarket {
-  function listLoot(uint256 lootId) external returns (bool);
+  function listLoot(uint256 lootId, uint256 lootPrice) external returns (bool);
   function buyLoot(uint256 lootId) external returns (bool);
 }

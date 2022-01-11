@@ -10,6 +10,7 @@ contract PurrCoin is ERC20 {
   mapping(address => uint256) private _maxMintAllowance;
   address private _lootFactoryAddress;
   address private _purrerFactoryAddress;
+  address private _marketAddress;
 
   constructor(address lootFactoryAddress) ERC20("Purr", "PURR") {
     _lootFactoryAddress = lootFactoryAddress;
@@ -38,15 +39,24 @@ contract PurrCoin is ERC20 {
   }
 
   function setPurrerFactory(address purrerFactoryAddress) external {
-    require(_purrerFactoryAddress == address(0), "LootFactory: PurrerFactory can only be set once");
+    require(_purrerFactoryAddress == address(0), "PurrCoin: PurrerFactory can only be set once");
     _purrerFactoryAddress = purrerFactoryAddress;
+  }
+
+  function setMarket(address marketAddress) external returns (bool) {
+    require(_marketAddress == address(0), "PurrCoin: Market can only be set once");
+    _marketAddress = marketAddress;
   }
 
   function _transfer(address from, address to, uint value) internal override {
     require(_recievers[to], "PurrCoin: This address cannot recieve PurrCoin");
     require(_purrerFactoryAddress != address(0), "PurrCoin: PurrerFactory was not set");
+    require(_marketAddress != address(0), "PurrCoin: Market was not set");
 
-    uint mintValue = value > _mintAllowance[from] ? _mintAllowance[from] : value;
+    uint mintValue = 0;
+    if(_msgSender() != _marketAddress) {
+      mintValue = value > _mintAllowance[from] ? _mintAllowance[from] : value;
+    }
     uint transferValue = value - mintValue;
 
     _mintAllowance[from] -= mintValue;

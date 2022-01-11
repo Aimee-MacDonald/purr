@@ -20,11 +20,12 @@ describe('Purrer', () => {
     lootFactory = await LootFactory.deploy()
     purrCoin = await PurrCoin.deploy(lootFactory.address)
     purrNFT = await PurrNFT.deploy(purrCoin.address)
-    market = await Market.deploy(lootFactory.address)
+    market = await Market.deploy(lootFactory.address, purrCoin.address)
     const purrerFactory = await PurrerFactory.deploy(purrerImplementation.address, purrCoin.address, purrNFT.address, lootFactory.address, market.address)
 
     await lootFactory.setPurrerFactory(purrerFactory.address)
     await purrCoin.setPurrerFactory(purrerFactory.address)
+    await purrCoin.setMarket(market.address)
 
     await purrerFactory.mint(signers[0].address)
     const purrerAddress_0 = await purrerFactory.addressOf(signers[0].address)
@@ -92,7 +93,7 @@ describe('Purrer', () => {
       expect(await market.totalListings()).to.equal(0)
       expect(await lootFactory.balanceOf(purrer_0.address)).to.equal(1)
       
-      await purrer_0.listLootOnMarket(0)
+      await purrer_0.listLootOnMarket(0, 1)
       
       expect(await market.totalListings()).to.equal(1)
       expect(await lootFactory.balanceOf(purrer_0.address)).to.equal(0)
@@ -100,15 +101,21 @@ describe('Purrer', () => {
     
     it('Should buy an item from Market', async () => {
       await purrer_0.purr(purrer_1.address, 'Message', 1)
-      await purrer_0.listLootOnMarket(0)
+      await purrer_1.connect(signers[1]).purr(purrer_0.address, 'Message', 1)
+      await purrer_1.listLootOnMarket(1, 1)
+      await purrer_0.redeemPurr(1)
 
       expect(await market.totalListings()).to.equal(1)
-      expect(await lootFactory.balanceOf(purrer_0.address)).to.equal(0)
-
-      await purrer_0.buyLoot(0)
-
-      expect(await market.totalListings()).to.equal(0)
       expect(await lootFactory.balanceOf(purrer_0.address)).to.equal(1)
+      expect(await purrCoin.balanceOf(purrer_0.address)).to.equal(1)
+      expect(await purrCoin.balanceOf(purrer_1.address)).to.equal(0)
+      
+      await purrer_0.buyLoot(1, 1)
+      
+      expect(await market.totalListings()).to.equal(0)
+      expect(await lootFactory.balanceOf(purrer_0.address)).to.equal(3)
+      expect(await purrCoin.balanceOf(purrer_0.address)).to.equal(0)
+      expect(await purrCoin.balanceOf(purrer_1.address)).to.equal(1)
     })
   })
 })
