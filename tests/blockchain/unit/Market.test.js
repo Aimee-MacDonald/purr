@@ -46,8 +46,20 @@ describe('Market', () => {
       expect(await market.ownerOf(0)).to.equal('0x0000000000000000000000000000000000000000')
 
       await market.listLoot(0, 1)
-
+      
       expect(await market.ownerOf(0)).to.equal(signers[0].address)
+    })
+
+    it('Should revert when tokenAtIndex is out of bounds', () => {
+      expect(market.tokenAtIndex(0)).to.be.revertedWith('Market: Index out of bounds')
+    })
+    
+    it('Should return a tokenId at a given listing index', async () => {
+      await market.listLoot(0, 1)
+      await market.listLoot(1, 1)
+      
+      expect(await market.tokenAtIndex(0)).to.equal(0)
+      expect(await market.tokenAtIndex(1)).to.equal(1)
     })
   })
 
@@ -80,6 +92,19 @@ describe('Market', () => {
       await market.buyLoot(0)
       
       expect(await mockPurrCoin.transferred()).to.equal(true)
+    })
+    
+    it('Should update the tokenIDs array', async () => {
+      await market.listLoot(0, 1)
+      await market.listLoot(1, 1)
+      
+      expect(await market.tokenAtIndex(0)).to.equal(0)
+      expect(await market.tokenAtIndex(1)).to.equal(1)
+      
+      await market.buyLoot(0)
+      
+      expect(await market.tokenAtIndex(0)).to.equal(1)
+      expect(market.tokenAtIndex(1)).to.be.revertedWith('Market: Index out of bounds')
     })
   })
 })
