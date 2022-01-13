@@ -9,6 +9,7 @@ import PurrerWorkspace from '../../workspaces/PurrerWorkspace/PurrerWorkspace'
 import LootWorkspace from '../../workspaces/LootWorkspace/LootWorkspace'
 import PurrsWorkspace from '../../workspaces/PurrsWorkspace/PurrsWorkspace'
 import NetworkWorkspace from '../../workspaces/NetworkWorkspace/NetworkWorkspace'
+import MarketWorkspace from '../../workspaces/MarketWorkspace/MarketWorkspace'
 
 import PurrerFactoryInterface from '../../contractInterfaces/PurrerFactoryInterface'
 
@@ -28,6 +29,7 @@ export const WorkspaceLayer = () => {
       {activeWorkspace === getWorkspaceIndex('LOOT') && <LootWorkspace/>}
       {activeWorkspace === getWorkspaceIndex('PURRS') && <PurrsWorkspace/>}
       {activeWorkspace === getWorkspaceIndex('NETWORK') && <NetworkWorkspace/>}
+      {activeWorkspace === getWorkspaceIndex('MARKET') && <MarketWorkspace/>}
     </div>
   )
 }

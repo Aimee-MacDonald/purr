@@ -5,6 +5,7 @@ async function main() {
   const LootFactory = await hre.ethers.getContractFactory('LootFactory')
   const PurrerImplementation = await hre.ethers.getContractFactory('Purrer')
   const PurrNFT = await hre.ethers.getContractFactory('PurrNFT')
+  const Market = await hre.ethers.getContractFactory('Market')
   const PurrerFactory = await hre.ethers.getContractFactory('PurrerFactory')
   const ResetPurrCoin = await hre.ethers.getContractFactory('ResetPurrCoin')
   const IncreaseMintAllowance = await hre.ethers.getContractFactory('IncreaseMintAllowance')
@@ -24,8 +25,12 @@ async function main() {
   const purrNFT = await PurrNFT.deploy(purrCoin.address)
   await purrNFT.deployed()
   console.log(`PurrNFT deployed to: ${purrNFT.address}`)
+  
+  const market = await Market.deploy(lootFactory.address, purrCoin.address)
+  await market.deployed()
+  console.log(`Market deployed to: ${market.address}`)
 
-  const purrerFactory = await PurrerFactory.deploy(purrerImplementation.address, purrCoin.address, purrNFT.address, lootFactory.address)
+  const purrerFactory = await PurrerFactory.deploy(purrerImplementation.address, purrCoin.address, purrNFT.address, lootFactory.address, market.address)
   await purrerFactory.deployed()
   console.log(`PurrerFactory deployed to: ${purrerFactory.address}`)
 
@@ -38,6 +43,7 @@ async function main() {
   console.log(`IncreaseMintAllowance deployed to: ${increaseMintAllowance.address}`)
 
   await purrCoin.setPurrerFactory(purrerFactory.address)
+  await purrCoin.setMarket(market.address)
   await lootFactory.setPurrerFactory(purrerFactory.address)
 
   await lootFactory.addLootType('RESET_PURRCOIN', resetPurrCoin.address)

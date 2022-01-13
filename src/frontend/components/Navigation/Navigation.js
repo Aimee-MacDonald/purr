@@ -19,6 +19,7 @@ export const Navigation = () => {
       <button onClick={() => setActiveWorkspace(getWorkspaceIndex('LOOT'))}>Loot</button>
       <button onClick={() => setActiveWorkspace(getWorkspaceIndex('PURRS'))}>Purrs</button>
       <button onClick={() => setActiveWorkspace(getWorkspaceIndex('NETWORK'))}>Network</button>
+      <button onClick={() => setActiveWorkspace(getWorkspaceIndex('MARKET'))}>Market</button>
     </div>
   )
 }

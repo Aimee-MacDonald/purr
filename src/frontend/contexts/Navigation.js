@@ -7,7 +7,8 @@ export default ({ children }) => {
     'PURRER',
     'LOOT',
     'PURRS',
-    'NETWORK'
+    'NETWORK',
+    'MARKET'
   ]
 
   const getWorkspaceIndex = workspaceName => workspaceOptions.indexOf(workspaceName)
