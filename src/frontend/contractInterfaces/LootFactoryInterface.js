@@ -30,4 +30,9 @@ export default class LootFactoryInterface extends BaseInterface {
         })
     }
   }
+
+  detailsOf(tokenId) {
+    return super.getContract()
+      .then(market => market.detailsOf(tokenId))
+  }
 }

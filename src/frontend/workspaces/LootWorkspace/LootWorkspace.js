@@ -29,6 +29,16 @@ const LootWorkspace = () => {
       .then(purrer => purrer.consumeLoot(lootId))
   }
 
+  const listOnMarket = (lootId, lootPrice) => {
+    const purrerFactory = new PurrerFactoryInterface()
+
+    purrerFactory.purrerAddress()
+      .then(purrerAddress => new PurrerInterface(purrerAddress))
+      .then(purrer => purrer.listLoot(lootId, lootPrice))
+      .then(result => console.log(`Result: ${result}`))
+      .catch(error => console.log(`Error: ${error}`))
+  }
+
   return (
     <div id='LootWorkspace'>
       {lootTokens.map(lootToken => (
@@ -37,6 +47,7 @@ const LootWorkspace = () => {
           <p>{lootToken.implementation}</p>
           <p>{lootToken.id.toString()}</p>
           <button onClick={() => consumeLoot(lootToken.id)}>Consume</button>
+          <button onClick={() => listOnMarket(0, 1)}>List on Market</button>
         </div>
       ))}
     </div>

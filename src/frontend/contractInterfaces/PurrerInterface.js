@@ -27,4 +27,18 @@ export default class PurrerInterface extends BaseInterface {
         .then(contract => contract.consumeLoot(lootId))
     }
   }
+
+  listLoot(lootId, lootPrice) {
+    if(super.ethCheck) {
+      return super.getContract(true)
+        .then(contract => contract.listLootOnMarket(lootId, lootPrice))
+    }
+  }
+
+  buyLoot(lootId, lootPrice) {
+    if(super.ethCheck) {
+      return super.getContract(true)
+        .then(contract => contract.buyLoot(lootId, lootPrice))
+    }
+  }
 }
