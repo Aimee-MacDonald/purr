@@ -33,13 +33,25 @@ describe('PurrerFactory', () => {
     it('tokenURI Should return a URI for external metadata', async () => {
       await purrerFactory.mint(signers[0].address)
       expect(await purrerFactory.balanceOf(signers[0].address)).to.equal(1)
-
+      
       const uri = await purrerFactory.tokenURI(0)
-
+      
       expect(uri).to.equal('https://whispurr.herokuapp.com/purrerData')
     })
 
-    it('Deploys a new Purrer proxy contract', async () => {
+    it('Should revert for tokenOwnedBy when address does not own a Purrer', () => {
+      expect(purrerFactory.tokenOwnedBy(signers[0].address)).to.be.revertedWith('PurrerFactory: Account is not a Purrer')
+    })
+    
+    it('Should return the tokenId of a user address', async () => {
+      await purrerFactory.mint(signers[0].address)
+      await purrerFactory.mint(signers[1].address)
+      
+      expect(await purrerFactory.tokenOwnedBy(signers[0].address)).to.equal(0)
+      expect(await purrerFactory.tokenOwnedBy(signers[1].address)).to.equal(1)
+    })
+
+    it('Should deploy a new Purrer proxy contract', async () => {
       //The PurrerProxy is the proxy that is created by purr factor.
       //It is the instantiation of a Purrer contract
       purrerProxyAddress_0 = await purrerFactory.addressOf(signers[0].address)

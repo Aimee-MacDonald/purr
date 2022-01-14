@@ -15,10 +15,17 @@ const PurrerWorkspace = () => {
   const [ balance, setBalance ] = useState(0)
   const [ mintAllowance, setMintAllowance] = useState(0)
   const [ purrerAddress, setPurrerAddress ] = useState('')
+  const [ purrerImageURL, setPurrerImageURL ] = useState('')
 
   const { setNotification } = useContext(ModalContext)
 
   useEffect(() => checkBalances(), [])
+  useEffect(() => {
+    purrerFactory.purrerAddress()
+      .then(purrerAddress => purrerFactory.getImageLink(purrerAddress))
+      .then(_purrerImageURL => setPurrerImageURL(_purrerImageURL))
+      .catch(error => console.log(error))
+  }, [])
 
   const checkBalances = () => {
     purrerFactory.purrerAddress()
@@ -64,8 +71,11 @@ const PurrerWorkspace = () => {
 
   return (
     <div id='PurrerWorkspace'>
-      <h1>Purrer Image</h1>
-      <p>Address: {purrerAddress}</p>
+      <div className='Purrer'>
+        <img src={purrerImageURL}/>
+        <p>{purrerAddress}</p>
+      </div>
+      
       <p>Balance: {balance}</p>
       <p>Mint Allowance: {mintAllowance}</p>
 

@@ -19,7 +19,7 @@ export const WorkspaceLayer = () => {
   
   useEffect(() => {
     purrerFactory.isPurrer()
-      .then(result => setActiveWorkspace(result > 0 ? getWorkspaceIndex('PURRS') : getWorkspaceIndex('JOIN')))
+      .then(result => setActiveWorkspace(result > 0 ? getWorkspaceIndex('PURRER') : getWorkspaceIndex('JOIN')))
   }, [])
 
   return (

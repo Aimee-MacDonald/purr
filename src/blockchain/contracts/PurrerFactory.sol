@@ -12,6 +12,7 @@ contract PurrerFactory is Ownable, ERC721URIStorage {
 
   mapping(address => address) private _userToPurrerAddress;
   mapping(address => bool) private _isPurrer;
+  mapping(address => uint256) private _ownerToToken;
   address private _purrerImplementationAddress;
   address private _purrCoinAddress;
   address private _purrNFTAddress;
@@ -33,6 +34,7 @@ contract PurrerFactory is Ownable, ERC721URIStorage {
     address cloneAddress = Clones.clone(_purrerImplementationAddress);
     _userToPurrerAddress[to] = cloneAddress;
     _isPurrer[cloneAddress] = true;
+    _ownerToToken[to] = _tokenIdTracker.current();
 
     IPurrer(cloneAddress).init(_purrCoinAddress, _purrNFTAddress, _lootFactoryAddress, _marketAddress);
     IPurrer(cloneAddress).transferOwnership(to);
@@ -40,7 +42,7 @@ contract PurrerFactory is Ownable, ERC721URIStorage {
     IPurrCoin(_purrCoinAddress).addMinter(cloneAddress);
 
     _safeMint(to, _tokenIdTracker.current());
-    _setTokenURI(_tokenIdTracker.current(), "https://whispurr.herokuapp.com/purrerData");
+    _setTokenURI(_tokenIdTracker.current(), "http://localhost:1248/purrerData");
     _tokenIdTracker.increment();
     
     return true;
@@ -52,6 +54,11 @@ contract PurrerFactory is Ownable, ERC721URIStorage {
 
   function isPurrer(address account) external view returns (bool) {
     return _isPurrer[account];
+  }
+
+  function tokenOwnedBy(address account) external view returns (uint256) {
+    require(_isPurrer[_userToPurrerAddress[account]], "PurrerFactory: Account is not a Purrer");
+    return _ownerToToken[account];
   }
 }
 
