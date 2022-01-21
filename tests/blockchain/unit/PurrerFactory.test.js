@@ -35,8 +35,8 @@ describe('PurrerFactory', () => {
       expect(await purrerFactory.balanceOf(signers[0].address)).to.equal(1)
       
       const uri = await purrerFactory.tokenURI(0)
-      
-      expect(uri).to.equal('https://whispurr.herokuapp.com/purrerData')
+
+      expect(uri).to.equal('http://localhost:1248/purrerData')
     })
 
     it('Should revert for tokenOwnedBy when address does not own a Purrer', () => {

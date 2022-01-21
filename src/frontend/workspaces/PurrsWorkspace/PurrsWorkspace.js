@@ -33,7 +33,8 @@ const PurrsWorkspace = () => {
   return (
     <div id='PurrsWorkspace'>
       {purrs.map(purr => (
-        <div key={purr._id}>
+        <div key={purr._id} className={`Purr${purr.isRedeemed ? ' scorched' : ''}`}>
+          <img src={purr.imgUrl}/>
           <p>From: {purr.from}</p>
           <p>Message: {purr.message}</p>
           <p>Value: {purr.value.toString()}</p>

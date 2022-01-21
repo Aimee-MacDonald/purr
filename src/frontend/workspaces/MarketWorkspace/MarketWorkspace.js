@@ -30,7 +30,6 @@ const MarketWorkspace = () => {
 
   return (
     <div id='MarketWorkspace'>
-      <h1>Market Workspace</h1>
       {listings.map(listing => (
         <div key={listing.index}>
           <p>{listing.index}</p>

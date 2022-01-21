@@ -28,41 +28,21 @@ export default class PurrNFTInterface extends BaseInterface {
           for(var i = 0; i < nftCount; i++) {
             const tokenId = await contract.tokenOfOwnerByIndex(purrerAddress, i)
             const mintData = await contract.getMintData(tokenId)
-            allMintData.push({ _id: tokenId, ...mintData })
+            const tokenURI = await contract.tokenURI(tokenId)
+            const response = await fetch(tokenURI)
+            const data = await response.json()
+            const url = data.external_url
+
+            allMintData.push({
+              _id: tokenId,
+              imgUrl: url,
+              ...mintData
+            })
           }
 
           return allMintData
         })
     }
-    /*
-    if(super.ethCheck) {
-      const contract = await super.getContract(true)
-
-      try {
-        const nftCount = await contract.balanceOf(purrerAddress) * 1
-        let allMintData = []
-
-        for(let i = 0; i < nftCount; i++) {
-          const tokenID = await contract.tokenOfOwnerByIndex(purrerAddress, i) * 1
-          const mintData = await contract.getMintData(tokenID)
-          const tokenURI = await contract.tokenURI(tokenID)
-          const res = await fetch(tokenURI)
-          const result = await res.json()
-
-          allMintData.push({
-            _id:tokenID,
-            ...mintData,
-            value: mintData.value / 10 ** 18,
-            tokenURI: result.external_url
-          })
-        }
-
-        return allMintData
-      } catch(error) {
-        return error
-      }
-    }
-    */
   }
 
   async redeem(tokenID) {

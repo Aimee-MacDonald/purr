@@ -46,8 +46,8 @@ describe('PurrNFT', () => {
       await purrNFT.mint(signers[1].address, 'Message', 1)
 
       const tokenURI = await purrNFT.tokenURI(0)
-      
-      expect(tokenURI).to.equal('https://whispurr.herokuapp.com/purrNFTData')
+
+      expect(tokenURI).to.equal('http://localhost:1248/purrNFTData')
     })
 
     it('Should wrap PurrCoin', async () => {

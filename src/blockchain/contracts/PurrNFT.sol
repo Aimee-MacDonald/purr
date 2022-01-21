@@ -34,7 +34,7 @@ contract PurrNFT is ERC721Enumerable {
 
     _safeMint(to, _tokenIdTracker.current());
     _mintData[_tokenIdTracker.current()] = MintData(_msgSender(), to, block.timestamp, message, value, false);
-    _setTokenURI(_tokenIdTracker.current(), "https://whispurr.herokuapp.com/purrNFTData");
+    _setTokenURI(_tokenIdTracker.current(), "http://localhost:1248/purrNFTData");
     _tokenIdTracker.increment();
     return true;
   }
