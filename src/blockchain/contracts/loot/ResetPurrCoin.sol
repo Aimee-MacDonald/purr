@@ -32,6 +32,6 @@ contract ResetPurrCoin {
     _balances[purrerAddress] = 0;
     _totalSupply -= accountBalance;
 
-    _mintAllowance[purrerAddress] = 1;
+    _mintAllowance[purrerAddress] = _maxMintAllowance[purrerAddress];
   }
 }

@@ -48,18 +48,24 @@ describe('ResetPurrCoin', () => {
   })
 
   describe('Consumption', () => {
-    it('Should reset PurrCoin balance to 0 and mintAllowance to 1', async () => {
+    it('Should reset PurrCoin balance to 0 and mintAllowance to maxMintAllowance', async () => {
       await purrer_0.purr(purrer_1.address, 'Message', 1)
       await purrer_1.connect(signers[1]).purr(purrer_0.address, 'Message', 1)
       await purrer_0.redeemPurr(1)
 
-      expect(await purrCoin.balanceOf(purrer_0.address)).to.equal(1)
-      expect(await purrCoin.mintAllowanceOf(purrer_0.address)).to.equal(0)
+      let balance, allowance
+
+      balance = await purrCoin.balanceOf(purrer_0.address)
+      allowance = await purrCoin.mintAllowanceOf(purrer_0.address)
+      expect(balance).to.equal(1)
+      expect(allowance).to.equal(0)
 
       await purrer_0.consumeLoot(0)
 
+      balance = await purrCoin.balanceOf(purrer_0.address)
+      allowance = await purrCoin.mintAllowanceOf(purrer_0.address)
       expect(await purrCoin.balanceOf(purrer_0.address)).to.equal(0)
-      expect(await purrCoin.mintAllowanceOf(purrer_0.address)).to.equal(1)
+      expect(await purrCoin.mintAllowanceOf(purrer_0.address)).to.equal(await purrCoin.maxMintAllowanceOf(purrer_0.address))
     })
   })
 })
