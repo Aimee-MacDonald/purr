@@ -8,6 +8,7 @@ import PurrerInterface from '../../contractInterfaces/PurrerInterface'
 
 const LootWorkspace = () => {
   const [ lootTokens, setLootTokens ] = useState([])
+  const [ creatingListing, setCreatingListing ] = useState(false)
 
   useEffect(() => getLootList(), [])
 
@@ -29,14 +30,20 @@ const LootWorkspace = () => {
       .then(purrer => purrer.consumeLoot(lootId))
   }
 
-  const listOnMarket = (lootId, lootPrice) => {
-    const purrerFactory = new PurrerFactoryInterface()
+  const listOnMarket = (e, lootId) => {
+    e.preventDefault()
 
-    purrerFactory.purrerAddress()
-      .then(purrerAddress => new PurrerInterface(purrerAddress))
-      .then(purrer => purrer.listLoot(lootId, lootPrice))
-      .then(result => console.log(`Result: ${result}`))
-      .catch(error => console.log(`Error: ${error}`))
+    const lootPrice = e.target.lootPrice.value
+
+    if(lootPrice > 0) {
+      const purrerFactory = new PurrerFactoryInterface()
+
+      purrerFactory.purrerAddress()
+        .then(purrerAddress => new PurrerInterface(purrerAddress))
+        .then(purrer => purrer.listLoot(lootId, lootPrice))
+        .then(result => console.log(`Result: ${result}`))
+        .catch(error => console.log(`Error: ${error}`))
+    }
   }
 
   return (
@@ -46,8 +53,17 @@ const LootWorkspace = () => {
           <h3>{lootToken.name}</h3>
           <p>{lootToken.implementation}</p>
           <p>{lootToken.id.toString()}</p>
-          <button onClick={() => consumeLoot(lootToken.id)}>Consume</button>
-          <button onClick={() => listOnMarket(0, 1)}>List on Market</button>
+          
+          {creatingListing &&
+            <form onSubmit={e => listOnMarket(e, lootToken.id)}>
+              <input id='lootPrice'/>
+              <button type='submit'>Add Listing</button>
+              <button type='button' onClick={() => setCreatingListing(false)}>Cancel</button>
+            </form>
+          }
+
+          {!creatingListing && <button onClick={() => consumeLoot(lootToken.id)}>Consume</button>}
+          {!creatingListing && <button onClick={() => setCreatingListing(true)}>List on Market</button>}
         </div>
       ))}
     </div>

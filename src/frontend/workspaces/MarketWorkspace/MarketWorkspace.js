@@ -23,7 +23,7 @@ const MarketWorkspace = () => {
 
     purrerFactory.purrerAddress()
       .then(purrerAddress => new PurrerInterface(purrerAddress))
-      .then(purrer => purrer.buyLoot(0, 1))
+      .then(purrer => purrer.buyLoot(lootId, lootPrice))
       .then(result => console.log(result))
       .catch(error => console.log(error))
   }
@@ -32,9 +32,10 @@ const MarketWorkspace = () => {
     <div id='MarketWorkspace'>
       {listings.map(listing => (
         <div key={listing.index}>
-          <p>{listing.index}</p>
-          <p>{listing.tokenId.toString()}</p>
-          <button onClick={() => buy()}>Buy</button>
+          <p>{`Listing Index: ${listing.index}`}</p>
+          <p>{`Token ID: ${listing.tokenId.toString()}`}</p>
+          <p>{`Listing Price: ${listing.price}`}</p>
+          <button onClick={() => buy(listing.tokenId, listing.price)}>Buy</button>  
         </div>
       ))}
     </div>

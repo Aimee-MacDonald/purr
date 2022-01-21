@@ -85,7 +85,7 @@ describe('Market', () => {
     })
     
     it('Should transfer PurrCoin from buyer to seller', async () => {
-      await market.listLoot(0, 1)
+      await market.listLoot(0, 5)
       
       expect(await mockPurrCoin.transferred()).to.equal(false)
       

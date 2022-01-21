@@ -17,9 +17,13 @@ export default class MarketInterface extends BaseInterface {
           let listings = []
 
           for(let listingIndex = 0; listingIndex < totalListings; listingIndex++) {
+            const tokenId = await market.tokenAtIndex(listingIndex)
+            const price = await market.priceOf(tokenId)
+
             listings.push({
               index: listingIndex,
-              tokenId: await market.tokenAtIndex(listingIndex)
+              tokenId,
+              price
             })
           }
 

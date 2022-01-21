@@ -37,7 +37,7 @@ contract Market is Context, ERC721Holder {
     require(_lootFactoryAddress != address(0), "Market: LootFactoryAddress not set");
     require(_purrCoinAddress != address(0), "Market: PurrCoinAddress not set");
 
-    IPurrCoin(_purrCoinAddress).transferFrom(_msgSender(), ownerOf(lootId), 1);
+    IPurrCoin(_purrCoinAddress).transferFrom(_msgSender(), ownerOf(lootId), _prices[lootId]);
     ILootFactory(_lootFactoryAddress).safeTransferFrom(address(this), _msgSender(), lootId);
     
     uint256 tokenIndex = _indexes[lootId];
